@@ -1,53 +1,85 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <link rel="stylesheet" href="./normalize.css">
-  <link rel="stylesheet" href="./style.css">
-  <title>The story so far: from JavaScript to PureScript</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
+    <title>Simon Van Casteren - Posts</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+      <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
+    <!--<![endif]-->
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="css/layouts/blog-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+      <link rel="stylesheet" href="css/layouts/blog.css">
+    <!--<![endif]-->
 </head>
 <body>
-  <div class="container">
-    <div class="nav">
-      <div class="logo">Simon Van Casteren</div>
-      <a class="nav-item" href="index.html"> Posts </a>
-      <a class="nav-item" href="about.html"> About </a>
+<div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+        <div class="header">
+            <h1 class="brand-title">Simon Van Casteren</h1>
+            <h2 class="brand-tagline">Blogposts</h2>
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a class="pure-button" href="index.html">Posts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="pure-button" href="about.html">About</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
-  </div>
-  <div class="blog-container">
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+    <h1 class="content-subhead">2015-02-21</h1>
     <h1> The story so far: from JavaScript to PureScript </h1>
     <p>
     I took my first steps in the JavaScript world about 5 years ago. Since then, I've had some great times with the language! I made a whole bunch of apps, in a whole bunch of frameworks. I always tried to make every project better than the previous one. This has led me on a rollercoaster of many different libraries, frameworks and tools. In this post I'd like to summarize how my personal standards for software development tools came to be, and why PureScript scores so well against those standards.
     </p>
+    <h3>The JS Ecosystem</h3>
     <p>
     About 5 years ago, I was asked to write a full application from scratch. Until then I had worked on legacy systems in the financial sector. My client wanted this app to be an administrative interface to their data, but also wanted a customer facing component. I was NOT looking forward to making any kind of installed native application, so I ended up making a Backbone/Rails application. The JavaScript-driven web was, and still is, the only platform that can offer zero-install software and discoverability for everybody. For me, it really is the best way to present software to end users, and my client ended up being very happy with the resulting application.
     </p>
-    <p class="takeaway">
-    <em> Takeaway 1: The JS ecosystem </em>
+    <p>
+    <em> Takeaway 1: </em>
     JavaScript is pretty amazing. The reach, discoverability and zero-install philosophy of JavaScript is unparallelled. Nowadays, you can even build your whole software stack in JavaScript. It reaches from DB's and backends to frontends and mobile apps. There is a huge community consistently churning out new libraries, frameworks and approaches. Tech giants are funneling huge amounts of resources into making the JavaScript VM's ever faster and more feature-rich. Lately running JavaScript on client and server is done regularly and holds very big benefits for code reuse. In short, JavaScript is a platform that holds enormous opportunity.
     </p>
+    <h3>The JS language</h3>
     <p>
     However, the experience also frustrated me greatly. Writing JavaScript felt so extremely brittle. I just slapped some code into a text editor and crossed my fingers that everything would be fine at runtime. After a few rounds of going back and forth between my client's features and the codebase, the effort to manually keep all my code consistent spiraled out of control. I had to keep so much stuff in my head at all times, I often felt depressed after a long night of coding. I write JavaScript for my day job everyday, and that feeling never went away.
     </p>
-    <p class="takeaway">
-    <em> Takeaway 2: The JS language </em>
+    <p>
+    <em> Takeaway 2: </em>
     JavaScript is really hard to write applications in. I'm not talking about the language's rough edges. Stuff like ({} + {}) being NaN may be fun to shock people on Twitter with, but in practice it's rarely a problem. I am talking about dynamic typing, runtime code introspection (eg: Function::toString), runtime code evaluation, mutability by default, implicit type coercion, ... . This dynamism is not for me. It stresses me out. I want to be able to specify constraints and something outside of my brain to enforce these. 
     One of my music teachers once told me that when improvising, constraints make you more creative. This seems counter-intuitive: How can you be more creative when you're allowed to do less? Yet it works! It forces you to come up with radically new approaches. Things that you wouldn't think about if you were allowed to use everything you were using before. I feel the same way about making software: Constraining yourself to a safer subset of a language is not a bad thing. Your inherent creativity leads you to new and sometimes better ways of making programs, within that safety net.
     </p>
+    <h3>Magic</h3>
     <p>
     On the server side, I *hated* working with Ruby On Rails. I dove into making my Rails app after reading maybe a blog post and a tiny tutorial. Obviously not a good idea, but it is what beginning programmers do. I managed to coerce it to spit out what I wanted it to, but I felt and still feel the huge amount of magic, configuration and conventions coupled with zero help from any kind of static analysis/compiler made the experience more like chanting random spells out of an old spellbook than software engineering. I never doubted that if somebody knew every spell in the book they'd be a pretty badass wizard, it just wasn't the way I wanted to go on writing programs.
     </p>
-    <p class="takeaway">
-    <em> Takeaway 3: Magic </em>
+    <p>
+    <em> Takeaway 3: </em>
     Many developers seem to love magic: "I type two lines of code here and my app now has oAuth authentication, sweet!". That is not me. I hate magic. I want to know how stuff works, so I can understand how my *complete* app works, at least at a conceptual level. This might make me slower at certain tasks than some programmers. I'm fine with that.
     </p>
+    <h3>Functional Programming</h3>
     <p>
     After finishing that app, I couldn't believe this was how modern software engineering worked. I was sure this was not the pinnacle of software development, so I immersed myself into a whole bunch of different frameworks, libraries, tools, languages, ideologies, paradigms, you name it, to learn whatever I could about making *good apps*. I started out with familiar languages like Ruby, Java, Perl, ventured on into C# and Clojure and ended up at Haskell. 
     Haskell's ecosystem and community has a big wall around it: An outsider looking in is often completely terrified by it. At least I was. But I really wanted to get better at writing software, and many people in the Haskell community had the same idea and ended up there.
     It took me a couple tries to really get in to it, but once I did, I started seeing that there is really very little to be terrified of: Sure it's unfamiliar, sure some Haskell tweets seem like complete jibberish, and that's ok. You don't need to know everything to be able to make great programs in Haskell. The basics (functions, ADT's, typeclasses) are actually really easy to understand. More experienced Haskell developers are often discussing the more advanced parts of Haskell and GHC, but these are not at all needed to make good programs in Haskell. The basic building blocks are simple and extremely powerful.
     </p>
-    <p class="takeaway">
-    <em> Takeaway 4: Functional Programming </em>
+    <p>
+    <em> Takeaway 4: </em>
     Building programs with functions instead of objects has been really enjoyable and reliable for me. But to make whole programs with functions, composition is essential. For years I never understood what composition meant, but somehow it always felt important. Functional programmers LOVE to use this word. I heared FP celebs like <a href="www.youtube.com/watch?v=yIlDBPiMb0o">Bodil Stokke</a>, <a href="www.youtube.com/watch?v=eCUfzvz7Z20">Bartosz Milewski</a> and <a href="www.youtube.com/watch?v=JMP6gI5mLHc">Erik Meijer</a> rave about it, but never really understood what they were talking about. It made me feel so stupid. How can I be a real programmer if I can't figure our this "essential" part of my job? After hours and hours of reading Bartosz's blog posts, watching YouTube talks and consciously trying to apply these concepts in my code, it finally clicked. Composition really is the essence of programming. To me, composition means being able to write logic in simple functions and using composition (formalized by Category Theory) to cleanly "stitch" these functions into the rest of the application. Since I understood that, I look for it in every part of my software toolkit.
     </p>
+    <h3>PureScript</h3>
     <p>
     The journey so far has been interesting. Without further ado, I'd like to introduce PureScript (github.com/purescript/purescript), a language that was created by Phil Freeman (@paf31) and has really come into its own since 2015. I'll try to highlight the features I feel are most important and how they relate to the above:
     </p>
@@ -72,6 +104,7 @@
     <p>
     Stay tuned for more Web and Purescript articles!
     </p>
-  </div>
+    </div>
+</div>
 </body>
 </html>

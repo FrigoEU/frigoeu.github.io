@@ -1,0 +1,8 @@
+/* customizations */
+h2 a{
+  color: inherit;
+  text-decoration: none;
+}
+h2 a:hover{
+  text-decoration: none;
+}
