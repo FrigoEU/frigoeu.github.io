@@ -18,6 +18,15 @@
     <!--[if gt IE 8]><!-->
       <link rel="stylesheet" href="css/layouts/blog.css">
     <!--<![endif]-->
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-74111573-1', 'auto');
+      ga('send', 'pageview');
+    </script>
 </head>
 <body>
 <div id="layout" class="pure-g">
@@ -42,43 +51,56 @@
     <h1 class="content-subhead">2015-02-21</h1>
     <h1> The story so far: from JavaScript to PureScript </h1>
     <p>
-    I took my first steps in the JavaScript world about 5 years ago. Since then, I've had some great times with the language! I made a whole bunch of apps, in a whole bunch of frameworks. I always tried to make every project better than the previous one. This has led me on a rollercoaster of many different libraries, frameworks and tools. In this post I'd like to summarize how my personal standards for software development tools came to be, and why PureScript scores so well against those standards.
+    I took my first steps in the JavaScript world about 5 years ago. Since then, I've had some great times with the language! I made a whole bunch of apps, in a whole bunch of frameworks. I've always tried to make every project better than the previous one. This has led me on a rollercoaster of many different libraries, frameworks and tools. In this post I'd like to summarize how my personal standards for software development tools came to be, and why PureScript scores so well against those standards.
     </p>
     <h3>The JS Ecosystem</h3>
     <p>
-    About 5 years ago, I was asked to write a full application from scratch. Until then I had worked on legacy systems in the financial sector. My client wanted this app to be an administrative interface to their data, but also wanted a customer facing component. I was NOT looking forward to making any kind of installed native application, so I ended up making a Backbone/Rails application. The JavaScript-driven web was, and still is, the only platform that can offer zero-install software and discoverability for everybody. For me, it really is the best way to present software to end users, and my client ended up being very happy with the resulting application.
+    About 5 years ago, I was asked to write a full application from scratch. Until then I had worked on legacy systems in the financial sector. My client wanted this app to be an administrative interface to their data, but also wanted a customer facing component. I was NOT looking forward to making any kind of installed native application, so I ended up making a Backbone/Rails application. The decision to make an HTML5 SPA ended up being the right choice. Both my client and its customers were very happy with the approachability of the app. 
+    </p>
+    <p>
+    The JavaScript-driven web was, and still is, the only platform that can offer this kind of zero-install software and discoverability. For me, it really is the best way to present software to end users, and my client ended up being very happy with the resulting application. The reach, discoverability and zero-install philosophy of JavaScript is unparallelled. Nowadays, you can even build your whole software stack in JavaScript. It reaches from DB's and backends to frontends and mobile apps. There is a huge community constantly building and experimenting. Tech giants are funneling huge amounts of resources into making the JavaScript VM's ever faster and more feature-rich.
     </p>
     <p>
     <em> Takeaway 1: </em>
-    JavaScript is pretty amazing. The reach, discoverability and zero-install philosophy of JavaScript is unparallelled. Nowadays, you can even build your whole software stack in JavaScript. It reaches from DB's and backends to frontends and mobile apps. There is a huge community consistently churning out new libraries, frameworks and approaches. Tech giants are funneling huge amounts of resources into making the JavaScript VM's ever faster and more feature-rich. Lately running JavaScript on client and server is done regularly and holds very big benefits for code reuse. In short, JavaScript is a platform that holds enormous opportunity.
+    JavaScript as a platform and an ecosystem is pretty amazing.
     </p>
     <h3>The JS language</h3>
     <p>
-    However, the experience also frustrated me greatly. Writing JavaScript felt so extremely brittle. I just slapped some code into a text editor and crossed my fingers that everything would be fine at runtime. After a few rounds of going back and forth between my client's features and the codebase, the effort to manually keep all my code consistent spiraled out of control. I had to keep so much stuff in my head at all times, I often felt depressed after a long night of coding. I write JavaScript for my day job everyday, and that feeling never went away.
+    However, the experience also frustrated me greatly. Writing JavaScript felt so extremely brittle. I just slapped some code into a text editor and crossed my fingers that everything would be fine at runtime. After a few rounds of going back and forth between my client's features and the codebase, the effort to manually keep all my code consistent spiraled out of control. I had to keep so much stuff in my head at all times, I often felt depressed after a long night of coding. I write JavaScript for my day job everyday, and that feeling still remains.
+    </p>
+    <p>
+    People often pick on JavaScript's rough edges. Stuff like ({} + {}) being NaN may be fun to shock people on Twitter with, but in practice it's rarely a problem. For me, the real problems are dynamic typing, runtime code introspection (eg: Function::toString), runtime code evaluation, mutability by default, implicit type coercion, etc. This dynamism is not for me. It stresses me out. I want to be able to specify constraints and something outside of my brain to enforce these.
+    </p>
+    <p>
+    One of my music teachers once told me that when improvising, constraints make you more creative. This seems counter-intuitive: How can you be more creative when you're allowed to do less? Yet it works! It forces you to come up with radically new approaches. Things that you wouldn't think about if you were allowed to use everything you were using before. I feel the same way about making software: Constraining yourself to a safer subset of a language is not a bad thing. Your inherent creativity leads you to new and sometimes better ways of making programs, within that safety net.
     </p>
     <p>
     <em> Takeaway 2: </em>
-    JavaScript is really hard to write applications in. I'm not talking about the language's rough edges. Stuff like ({} + {}) being NaN may be fun to shock people on Twitter with, but in practice it's rarely a problem. I am talking about dynamic typing, runtime code introspection (eg: Function::toString), runtime code evaluation, mutability by default, implicit type coercion, ... . This dynamism is not for me. It stresses me out. I want to be able to specify constraints and something outside of my brain to enforce these. 
-    One of my music teachers once told me that when improvising, constraints make you more creative. This seems counter-intuitive: How can you be more creative when you're allowed to do less? Yet it works! It forces you to come up with radically new approaches. Things that you wouldn't think about if you were allowed to use everything you were using before. I feel the same way about making software: Constraining yourself to a safer subset of a language is not a bad thing. Your inherent creativity leads you to new and sometimes better ways of making programs, within that safety net.
-    </p>
+    JavaScript is really hard to write applications in. Any kind of help we can get is more than welcome! </p>
     <h3>Magic</h3>
     <p>
     On the server side, I *hated* working with Ruby On Rails. I dove into making my Rails app after reading maybe a blog post and a tiny tutorial. Obviously not a good idea, but it is what beginning programmers do. I managed to coerce it to spit out what I wanted it to, but I felt and still feel the huge amount of magic, configuration and conventions coupled with zero help from any kind of static analysis/compiler made the experience more like chanting random spells out of an old spellbook than software engineering. I never doubted that if somebody knew every spell in the book they'd be a pretty badass wizard, it just wasn't the way I wanted to go on writing programs.
     </p>
     <p>
-    <em> Takeaway 3: </em>
     Many developers seem to love magic: "I type two lines of code here and my app now has oAuth authentication, sweet!". That is not me. I hate magic. I want to know how stuff works, so I can understand how my *complete* app works, at least at a conceptual level. This might make me slower at certain tasks than some programmers. I'm fine with that.
+    </p>
+    <p>
+    <em> Takeaway 3: </em>
+    I don't want magic in my code. <a href="www.haskellforall.com/2015/10/explicit-is-better-than-implicit.html">Explicit is better than implicit</a>.
     </p>
     <h3>Functional Programming</h3>
     <p>
-    After finishing that app, I couldn't believe this was how modern software engineering worked. I was sure this was not the pinnacle of software development, so I immersed myself into a whole bunch of different frameworks, libraries, tools, languages, ideologies, paradigms, you name it, to learn whatever I could about making *good apps*. I started out with familiar languages like Ruby, Java, Perl, ventured on into C# and Clojure and ended up at Haskell. 
-    Haskell's ecosystem and community has a big wall around it: An outsider looking in is often completely terrified by it. At least I was. But I really wanted to get better at writing software, and many people in the Haskell community had the same idea and ended up there.
-    It took me a couple tries to really get in to it, but once I did, I started seeing that there is really very little to be terrified of: Sure it's unfamiliar, sure some Haskell tweets seem like complete jibberish, and that's ok. You don't need to know everything to be able to make great programs in Haskell. The basics (functions, ADT's, typeclasses) are actually really easy to understand. More experienced Haskell developers are often discussing the more advanced parts of Haskell and GHC, but these are not at all needed to make good programs in Haskell. The basic building blocks are simple and extremely powerful.
+    After finishing that app, I couldn't believe this was how modern software engineering worked. I was sure this was not the pinnacle of software development, so I immersed myself into a whole bunch of different frameworks, libraries, tools, languages, ideologies, paradigms, you name it, to learn whatever I could about making *good apps*. I started out with familiar languages like Ruby, Java, Perl, ventured on into C# and Clojure and ended up at Haskell and PureScript. 
+    </p>
+    <p>
+    My introduction to PureScript and Haskell came in the form of <a href="leanpub.com/purescript/read">PureScript by Example</a>. After a deep dive into this amazing book, I started to see the huge value of writing complete programs with functions. And as I read more and more about FP and PureScript/Haskell, I came across "composition".
+    </p>
+    <p>
+    To make complete programs with functions, composition is essential. For years I never understood what composition meant, but somehow it always felt important. Functional programmers LOVE to use this word. I heared FP celebs like <a href="www.youtube.com/watch?v=yIlDBPiMb0o">Bodil Stokke</a>, <a href="www.youtube.com/watch?v=eCUfzvz7Z20">Bartosz Milewski</a> and <a href="www.youtube.com/watch?v=JMP6gI5mLHc">Erik Meijer</a> rave about it, but never really understood what they were talking about. It made me feel so stupid. How can I be a real programmer if I can't figure our this "essential" part of my job? After hours and hours of reading Bartosz's blog posts, watching YouTube talks and consciously trying to apply these concepts in my code, it finally clicked. Composition really is the essence of programming. To me, composition means being able to write logic in simple functions and using composition (formalized by Category Theory) to cleanly "stitch" these functions into the rest of the application. Since I understood that, I look for it in every part of my software toolkit.
     </p>
     <p>
     <em> Takeaway 4: </em>
-    Building programs with functions instead of objects is the way to go for me. But to make complete programs with functions, composition is essential. For years I never understood what composition meant, but somehow it always felt important. Functional programmers LOVE to use this word. I heared FP celebs like <a href="www.youtube.com/watch?v=yIlDBPiMb0o">Bodil Stokke</a>, <a href="www.youtube.com/watch?v=eCUfzvz7Z20">Bartosz Milewski</a> and <a href="www.youtube.com/watch?v=JMP6gI5mLHc">Erik Meijer</a> rave about it, but never really understood what they were talking about. It made me feel so stupid. How can I be a real programmer if I can't figure our this "essential" part of my job? After hours and hours of reading Bartosz's blog posts, watching YouTube talks and consciously trying to apply these concepts in my code, it finally clicked. Composition really is the essence of programming. To me, composition means being able to write logic in simple functions and using composition (formalized by Category Theory) to cleanly "stitch" these functions into the rest of the application. Since I understood that, I look for it in every part of my software toolkit.
-    </p>
+    Building programs with functions instead of objects is the way to go for me, and composition is essential to make it work.</p>
     <h3>PureScript</h3>
     <p>
     The journey so far has been interesting. Without further ado, I'd like to introduce <a href="github.com/purescript/purescript"></a>PureScript, a language that was created by <a href="https://twitter.com/paf31">Phil Freeman</a> and has really come into its own since 2015. I'll try to highlight the features I feel are most important and how they relate to the above:
@@ -99,7 +121,7 @@
       </li>
     </ul>
     <p>
-    This is obviously not a complete via of the PureScript language. A good starting point is <a href="www.purescript.org">www.purescript.org</a> and Phil Freeman's <a href="leanpub.com/purescript/read">PureScript by Example</a>. 
+    This is obviously not a complete view of the PureScript language. A good starting point is <a href="www.purescript.org">www.purescript.org</a> and Phil Freeman's <a href="leanpub.com/purescript/read">PureScript by Example</a>. 
     </p>
     <p>
     Stay tuned for more Web and Purescript articles!
