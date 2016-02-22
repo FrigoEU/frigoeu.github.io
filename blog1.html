@@ -109,22 +109,22 @@
     The journey so far has been interesting. Without further ado, I'd like to introduce <a href="github.com/purescript/purescript"></a>PureScript, a language that was created by <a href="https://twitter.com/paf31">Phil Freeman</a> and has really come into its own since 2015. I'll try to highlight the features I feel are most important and how they relate to the above:
     </p>
     <p>
-    <em>The JavaScript Ecosystem: </em>
+    <h5>The JavaScript Ecosystem </h5>
     PureScript is an AltJS language, meaning a language specifically created to compile to JavaScript. PureScript code can very easily reach out to JavaScript code using its <a href="www.purescript.org/learn/ffi">Foreign Function Interface</a>. With this, it's easy to keep the reach, the ecosystem and the community of JavaScript.
     </p>
     <p>
-    <em>The JavaScript Language: </em>
+    <h5>The JavaScript Language </h5>
     PureScript is heavily inspired by Haskell, but adapted for execution on JavaScript VM's. Like Haskell, PureScript is statically typed using a Hindley-Milner type system that allows for extensive type inference. Immutability is the default. The type system and immutability defaults are great solutions to the dynamism of JavaScript. The type system is very expressive and strict, and instills a lot of confidence into code that passes its checks. It doesn't replace testing, but in my own experience it has made my testing efforts a lot more economical: Any interface requirements are always enforced by the type system. These interface tests take up a lot of my time when writing unit tests in JavaScript. And as you gain more experience, you realize there is a lot you can have the typechecker enforce for you!
     </p>
     <p>
-    <em>Magic: </em>
+    <h5>Magic </h5>
     What's in a name: PureScript is "pure", which in this context means that any side-effects in your code need to be expressed in the type signatures of your functions. Haskell also has this property, but PureScript demands you to be more granular: Where a function reading a file as a String in Haskell could have a type signature of String -> IO String, in PureScript the equivalent type signature would be String -> Eff (fs :: FS | eff) String. A bit more words that you probably <a href="www.purescript.org/learn/eff">don't understand</a> at first, but it specifies that this function is not pure. It relies on the file system to produce a String, but that's also the only inpure thing this function does.
     </p>
     <p>
     This purity goes a long way to avoiding "magic" making its entrance into your code. Any side effects need to be explicitely expressed in the type system, so you have a much better idea of what a certain function does just by looking at its signature. 
     </p>
     <p>
-    <em> Functional Programming </em>
+    <h5> Functional Programming </h5>
     PureScript's a functional programming language, strongly emphasising functions as the basic building blocks for your applications. Composition is at the core of many PureScript/Haskell concepts and libraries. If you're really interested in composition, studying Category Theory is a good idea. It's basically "formalizing" composition, meaning it talks about composition in its purest form. If you're interested, <a href="bartoszmilewski.com/2014/10/28/category-theory-for-programmers-the-preface"></a>Bartosz Milewksi's blog posts come with my highest recommendations! The subject of Category Theory doesn't exactly make for an easy read, but Bartosz's posts are the best ones I've found so far.
     </p>
     <p>
