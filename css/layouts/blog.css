@@ -10,7 +10,7 @@ a {
 }
 a:hover,
 a:focus {
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 h3 {
@@ -122,3 +122,6 @@ h3 {
     }
 }
 
+.social{
+  height: 44px;
+}
