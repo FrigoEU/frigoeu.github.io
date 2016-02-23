@@ -55,10 +55,10 @@
     </p>
     <h3>The JavaScript Ecosystem</h3>
     <p>
-    About 5 years ago, I was asked to write a full application from scratch. Until then I had worked on legacy systems in the financial sector. My client wanted this app to be an administrative interface to their data, but also wanted a customer facing component. I was NOT looking forward to making any kind of installed native application, so I ended up making an HTML5 Single Page Application with Backbone.js and Ruby on Rails. The decision to make an SPA ended up being the right choice. Both my client and its customers were very happy with the approachability of the app. 
+    About 5 years ago, I was asked to write a full application from scratch. Until then I had worked on legacy systems in the financial sector. My client wanted this app to be an administrative interface to their data, but also wanted a customer facing component. I was NOT looking forward to making a network of distributed installed native applications, so I ended up making an HTML5 Single Page Application with Backbone.js and Ruby on Rails. The decision to make an SPA ended up being the right choice. Both my client and its customers were very happy with the approachability and instant access of the app. 
     </p>
     <p>
-    The JavaScript-driven web was, and still is, the only platform that can offer this kind of zero-install software and discoverability. For me, it really is the best way to present software to end users. The reach, discoverability and zero-install philosophy of JavaScript is unparallelled. Nowadays, you can even build your whole software stack in JavaScript. It reaches from DB's and backends to frontends and mobile apps. There is a huge community constantly building and experimenting. Tech giants are funneling huge amounts of resources into making the JavaScript VM's ever faster and more feature-rich.
+    The JavaScript-driven web was, and still is, the only platform that can offer this kind of zero-install software and discoverability. For me, it really is the best way to present software to end users. The reach, discoverability and zero-install philosophy of JavaScript is unparalleled. Nowadays, you can even build your whole software stack in JavaScript. It reaches from DB's and backends to frontends and mobile apps. There is a huge community constantly building and experimenting. Tech giants are funneling huge amounts of resources into making the JavaScript VM's ever faster and more feature-rich.
     </p>
     <p>
     <em> Takeaway 1: </em>
@@ -66,7 +66,7 @@
     </p>
     <h3>The JavaScript language</h3>
     <p>
-    Unfortunately, building this application also frustrated me greatly. Writing JavaScript felt so extremely brittle. I just slapped some code into a text editor and crossed my fingers that everything would be fine at runtime. After a few rounds of going back and forth between my client's features and the codebase, the effort to manually keep all my code consistent spiraled out of control. I had to keep so much stuff in my head at all times, I often felt depressed after a long night of coding. I write JavaScript for my day job everyday, and it gets better, but it's never easy.
+    Unfortunately, building this application was often very frustrating. Writing JavaScript felt so extremely brittle. I just slapped some code into a text editor and crossed my fingers that everything would be fine at runtime. After a few rounds of going back and forth between my client's features and the codebase, the effort to manually keep all my code consistent spiraled out of control. I had to keep so much stuff in my head at all times, I often felt depressed after a long night of coding. I write JavaScript for my day job everyday and it gets better, but I never feel writing JavaScript is easy or relaxing.
     </p>
     <p>
     People often pick on JavaScript's rough edges. Stuff like {} + {} being NaN may be fun to shock people on Twitter with, but in practice it's rarely a problem. For me, the real problems are dynamic typing, runtime code introspection (eg: Function::toString), runtime code evaluation, mutability by default, implicit type coercion, etc. Some people love JavaScript for this dynamism, but it is not for me. It stresses me out. I need guidance and help and I'm looking everywhere to find it.
@@ -79,56 +79,56 @@
     JavaScript is really hard to write applications in. Any kind of help we can get is more than welcome! </p>
     <h3>Magic</h3>
     <p>
-    On the server side, I *hated* working with Ruby On Rails. I dove into making my Rails app after reading maybe a blog post and a tiny tutorial. Obviously not a good idea, but it is what beginning programmers do. I managed to coerce it to spit out what I wanted it to, but I felt and still feel the huge amount of magic, configuration and conventions coupled with zero help from any kind of static analysis/compiler made the experience more like chanting random spells out of an old spellbook than software engineering. I never doubted that if somebody knew every spell in the book they'd be a pretty badass wizard, it just wasn't the way I wanted to go on writing programs.
+    On the server side, I *hated* working with Ruby On Rails. I managed to coerce it to spit out what I wanted it to, but I felt and still feel the huge amount of magic, configuration and conventions coupled with zero help from any kind of static analysis/compiler made the experience more like chanting random spells out of an old spellbook than software engineering. I never doubted that if somebody knew every spell in the book they'd be a pretty badass wizard, it just wasn't the way I wanted to go on writing programs.
     </p>
     <p>
-    Many developers seem to love magic: "I type two lines of code here and my app now has oAuth authentication, sweet!". That is not me. I hate magic. I want to know how stuff works, so I can understand how my *complete* app works, at least at a conceptual level. This might make me slower at certain tasks than some programmers, but I'm fine with that.
+    Many developers seem to love magic: "I type two lines of code here and my app now has oAuth authentication, sweet!". That is not me. I hate magic. I want to know how stuff works, so I can understand how my *complete* app works, at least at a conceptual level. This might make me slower at certain tasks than some programmers, but I'm fine with that. Trading this initial speedup for a better understanding of my app is worth it to me.
     </p>
     <p>
     <em> Takeaway 3: </em>
-    I don't want magic in my code. <a href="www.haskellforall.com/2015/10/explicit-is-better-than-implicit.html">Explicit is better than implicit</a>.
+    I don't want magic in my code. <a href="http://www.haskellforall.com/2015/10/explicit-is-better-than-implicit.html">Explicit is better than implicit</a>.
     </p>
     <h3>Functional Programming</h3>
     <p>
-    After finishing that app, I couldn't believe this was how modern software engineering worked. I was sure this was not the pinnacle of software development, so I immersed myself into a whole bunch of different frameworks, libraries, tools, languages, ideologies, paradigms, you name it, to learn whatever I could about making *good apps*. I started out with familiar languages like Ruby, Java, Perl, ventured on into C# and Clojure and ended up at Haskell and PureScript. 
+    After finishing that app, I couldn't believe this was how modern software engineering worked. I knew I needed knowledge and experience, so I immersed myself into a whole bunch of different frameworks, libraries, tools, languages, ideologies, paradigms, you name it, to learn whatever I could about making *good apps*. I started out with familiar languages like Ruby, Java, Perl, ventured on into C# and Clojure and ended up at Haskell and PureScript. 
     </p>
     <p>
-    My introduction to PureScript and Haskell came in the form of <a href="leanpub.com/purescript/read">PureScript by Example</a>. After a deep dive into this amazing book, I started to see the huge value of writing complete programs with functions. Haskell and PureScript are in many ways very similar, so concepts can often be translated one-to-one. 
+    My introduction to PureScript and Haskell came in the form of <a href="http://leanpub.com/purescript/read">PureScript by Example</a>. After a deep dive into this amazing book, I started to see the value of writing complete programs with functions. Haskell and PureScript are in many ways very similar, so concepts can often be translated one-to-one. 
     </p>
     <p>
-    As I read more and more about FP and PureScript/Haskell, I came across "composition". To make complete programs with functions, composition is essential. For years I never understood what composition meant, but somehow it always felt important. Functional programmers LOVE to use this word. I heared FP celebs like <a href="www.youtube.com/watch?v=yIlDBPiMb0o">Bodil Stokke</a>, <a href="www.youtube.com/watch?v=eCUfzvz7Z20">Bartosz Milewski</a> and <a href="www.youtube.com/watch?v=JMP6gI5mLHc">Erik Meijer</a> rave about it, but never really understood what they were talking about. It made me feel so stupid. How can I be a real programmer if I can't figure our this "essential" part of my job?
+    As I read more and more about FP and PureScript/Haskell, I came across "composition". To make complete programs with functions, composition is essential. For years I never understood what composition meant, but somehow it always felt important. Functional programmers LOVE to use this word. I heard FP celebs like <a href="http://www.youtube.com/watch?v=yIlDBPiMb0o">Bodil Stokke</a>, <a href="http://www.youtube.com/watch?v=eCUfzvz7Z20">Bartosz Milewski</a> and <a href="http://www.youtube.com/watch?v=JMP6gI5mLHc">Erik Meijer</a> rave about it, but never really understood what they were talking about. It made me feel so stupid. How could I be a real programmer if I couldn't figure out this "essential" part of my job?
     </p>
     <p>
-    After hours and hours of reading Bartosz's blog posts, watching YouTube talks and consciously trying to apply these concepts in my code, it finally clicked. Composition really is the essence of programming. To me, composition means being able to write logic in simple functions and using composition (formalized by Category Theory) to cleanly "stitch" these functions into the rest of the application. Since I understood that, I look for it in every part of my software toolkit.
+    After hours and hours of reading Bartosz's blog posts, watching YouTube talks and consciously trying to apply these concepts in my code, it finally clicked. Composition really is the essence of programming. To me, composition means being able to write logic in small and simple functions and using composition (formalized by Category Theory) to cleanly "stitch" these functions into the rest of the application. Since I understood that, I look for it in every part of my software toolkit.
     </p>
     <p>
     <em> Takeaway 4: </em>
-    Building programs with functions instead of objects is the way to go for me, and composition is essential to make it work.</p>
+    Building programs with functions is the way to go for me, and composition is essential to make it work.</p>
     <h3>PureScript</h3>
     <p>
-    The journey so far has been interesting. Without further ado, I'd like to introduce <a href="github.com/purescript/purescript"></a>PureScript, a language that was created by <a href="https://twitter.com/paf31">Phil Freeman</a> and has really come into its own since 2015. I'll try to highlight the features I feel are most important and how they relate to the above:
+    The journey so far has been interesting. Without further ado, I'd like to introduce <a href="http://github.com/purescript/purescript">PureScript</a>, a language that was created by <a href="https://twitter.com/paf31">Phil Freeman</a> and has really come into its own since 2015. I'll try to highlight the features I feel are most important and how they relate to the above:
     </p>
     <p>
     <h5>The JavaScript Ecosystem </h5>
-    PureScript is an AltJS language, meaning a language specifically created to compile to JavaScript. PureScript code can very easily reach out to JavaScript code using its <a href="www.purescript.org/learn/ffi">Foreign Function Interface</a>. With this, it's easy to keep the reach, the ecosystem and the community of JavaScript.
+    PureScript is an AltJS language, meaning a language specifically created to compile to JavaScript. PureScript code can very easily reach out to JavaScript code using its <a href="http://www.purescript.org/learn/ffi">Foreign Function Interface</a>. As such, PureScript keeps the reach, the ecosystem and the community of JavaScript while improving other aspects.
     </p>
     <p>
     <h5>The JavaScript Language </h5>
-    PureScript is heavily inspired by Haskell, but adapted for execution on JavaScript VM's. Like Haskell, PureScript is statically typed using a Hindley-Milner type system that allows for extensive type inference. Immutability is the default. The type system and immutability defaults are great solutions to the dynamism of JavaScript. The type system is very expressive and strict, and instills a lot of confidence into code that passes its checks. It doesn't replace testing, but in my own experience it has made my testing efforts a lot more economical: Any interface requirements are always enforced by the type system. These interface tests take up a lot of my time when writing unit tests in JavaScript. And as you gain more experience, you realize there is a lot you can have the typechecker enforce for you!
+    PureScript is heavily inspired by Haskell, but adapted for execution on JavaScript VM's. Like Haskell, PureScript is statically typed using a Hindley-Milner type system that allows for extensive type inference. Immutability is the default. The type system and immutability defaults have, almost paradoxically, freed me from the dynamism of JavaScript. The type system is very expressive and strict, and instills a lot of confidence into code that passes its checks. It doesn't replace testing, but in my experience it has made my testing efforts a lot more economical: Any interface requirements are always enforced by the type system. These interface tests take up a lot of my time when writing unit tests in JavaScript. And as you gain more experience, you realize there is a lot you can have the typechecker enforce for you!
     </p>
     <p>
     <h5>Magic </h5>
-    What's in a name: PureScript is "pure", which in this context means that any side-effects in your code need to be expressed in the type signatures of your functions. Haskell also has this property, but PureScript demands you to be more granular: Where a function reading a file as a String in Haskell could have a type signature of String -> IO String, in PureScript the equivalent type signature would be String -> Eff (fs :: FS | eff) String. A bit more words that you probably <a href="www.purescript.org/learn/eff">don't understand</a> at first, but it specifies that this function is not pure. It relies on the file system to produce a String, but that's also the only inpure thing this function does.
+    What's in a name: PureScript is "pure", which in this context means that any side-effects in your code need to be expressed in the type signatures of your functions. Haskell also has this property, but PureScript demands you to be more granular: Where a function reading a file as a String in Haskell could have a type signature of "String -> IO String", in PureScript the equivalent type signature would be "forall eff. String -> Eff (fs :: FS | eff) String". A few more words that you probably <a href="http://www.purescript.org/learn/eff">don't understand</a> at first, but it specifies that this function is not pure. It relies on the file system to produce a String, but that's also the only impure thing this function does.
     </p>
     <p>
-    This purity goes a long way to avoiding "magic" making its entrance into your code. Any side effects need to be explicitely expressed in the type system, so you have a much better idea of what a certain function does just by looking at its signature. 
+    This purity goes a long way to avoid "magic" making its entrance into your code. Any side effects need to be explicitly expressed in the type system, so you have a much better idea of what a certain function does just by looking at its signature. 
     </p>
     <p>
     <h5> Functional Programming </h5>
-    PureScript's a functional programming language, strongly emphasising functions as the basic building blocks for your applications. Composition is at the core of many PureScript/Haskell concepts and libraries. If you're really interested in composition, studying Category Theory is a good idea. It's basically "formalizing" composition, meaning it talks about composition in its purest form. If you're interested, <a href="bartoszmilewski.com/2014/10/28/category-theory-for-programmers-the-preface"></a>Bartosz Milewksi's blog posts come with my highest recommendations! The subject of Category Theory doesn't exactly make for an easy read, but Bartosz's posts are the best ones I've found so far.
+    PureScript's a functional programming language, strongly emphasizing functions as the basic building blocks for your applications. Composition is at the core of many PureScript/Haskell concepts and libraries. If you're really interested in composition, studying Category Theory is a good idea. Category Theory is described as "formalized composition", meaning it talks about composition in its purest form. If you're interested, <a href="http://bartoszmilewski.com/2014/10/28/category-theory-for-programmers-the-preface">Bartosz Milewksi's blog posts</a> come with my highest recommendations! The subject of Category Theory doesn't exactly make for an easy read, but Bartosz's posts are the best ones I've found so far.
     </p>
     <p>
-    This is obviously not a complete view of the PureScript language. A good starting point is <a href="www.purescript.org">www.purescript.org</a> and Phil Freeman's <a href="leanpub.com/purescript/read">PureScript by Example</a>. 
+    This is obviously not a complete view of the PureScript language. A good starting point is <a href="http://www.purescript.org">www.purescript.org</a> and Phil Freeman's <a href="http://leanpub.com/purescript/read">PureScript by Example</a>. 
     </p>
     <p>
     While writing this post I realized there's a lot more I wanted to say, but I tried to keep this one as short as I could. Stay tuned for more Web and Purescript articles!
