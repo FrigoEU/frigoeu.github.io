@@ -136,7 +136,7 @@ h3 {
   letter-spacing: .01rem;
   font-weight: 400;
   font-style: normal;
-  font-size: 20px;
+  font-size: 19px;
   line-height: 1.58;
   letter-spacing: -.003em;
   color: rgba(0,0,0,0.8);
@@ -151,5 +151,5 @@ h3 {
   background: rgba(61, 79, 93, 0.13);
   font-size: 0.8em;
   white-space: pre;
-  /* overflow: scroll; */
+  overflow: scroll;
 }
