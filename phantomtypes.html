@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
+    <title>The story so far: from JavaScript to PureScript</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+      <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
+    <!--<![endif]-->
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="css/layouts/blog-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+      <link rel="stylesheet" href="css/layouts/blog.css">
+    <!--<![endif]-->
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-74111573-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</head>
+<body>
+<div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+        <div class="header">
+            <h1 class="brand-title">Simon Van Casteren</h1>
+            <h2 class="brand-tagline">Blogposts</h2>
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a class="pure-button" href="index.html">Posts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="pure-button" href="about.html">About</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+    <h1 class="content-subhead">2015-03-28</h1>
+<h1> Type-safe client-server communication with PureScript </h1>
+    <div class="actual-text">
+    <p>
+    The big reason why I'm using PureScript for all my personal and commercial projects is the amazing type system. Today I'd like to show how, with a tiny simple abstraction, you can ensure type safe client-server communication when both your client and server are written in PureScript. I hope people not (yet) using PureScript regularly get a glimpse of the power it holds, while more experienced PS/Haskell programmers might get some ideas to increase the type safety of their systems across system boundaries. Also, this idea is still quite crude, so any ideas for improvement are very welcome!
+    </p>
+    <p>
+    <b>Disclaimer</b>: You'll need a beginner/intermediate knowledge of PureScript or Haskell to follow along. Explaining all the concepts in this post would force me to copy half of Phil Freeman's book <a href="https://leanpub.com/purescript/read">PureScript by Example</a>, which I thought was a terrible idea.
+    </p>
+
+    <h3>PureScript for Universal Apps</h3>
+    <p>
+    Let's get started with the obvious. PureScript compiles down to JavaScript. JavaScript is the only language that runs in the browser, but it also has a great runtime on the server in the form of Node. Opinions are divided whether or not writing your backend in JavaScript is a good idea, but some high profile use cases (LinkedIn, Netflix, ...) have shown that the runtime itself is capable of running webserver software at any scale.
+    </p>
+    <p>
+    JavaScript developers have been optimistic about running JavaScript on both sides of the fence (nicknamed "Universal Apps"). Being able to reuse business logic, validations and models seems like it could be a substantial boost to productivity and consistency. But JS codebases can get fragile because of a lack of static typing and this gets amplified when working with it on both the client and the server. When you change a field in the (implicit!) model on the server, it's entirely up to you to make sure this change is correctly propagated throughout your whole code base, on the server AND the client!
+    </p>
+    <p>
+    PureScript's static type system can help here. But how can we cross the network and still keep our compile time guarantees? The solution I've been using for this problem is a simple but powerful concept: Phantom Types. I'll give a small explanation here, but you can check out <a href="https://leanpub.com/purescript/read#leanpub-auto-phantom-types">PureScript by Example's section on Phantom Types</a> for another take.
+    </p>
+
+    <h3>Phantom Types</h3>
+    <p>
+    So let's start from an "ADT", or Abstract Data Type:
+    </p>
+    <code> 
+    data Maybe a = Nothing | Just a 
+    </code>
+    <p>
+    I'm declaring a new type here, called Maybe. Maybe has two data constructors, so two kinds of values that are of the type Maybe: Nothing, and Just a. Nothing takes no other value, but Just a does. (Just 2) is a value of type (Maybe Int). So the a in the above data type declaration is polymorphic (meaning it can get filled in by any other type), and in our example we fill it in with Int.
+    </p>
+    <p>
+    A phantom type parameter is a type parameter that appears on the left side of the equality sign, but <b>not</b> on the right side. This means that when creating a value of a type that incorporates a phantom type parameter, you don't provide a value of that phantom type. This probably sounds very weird, so we'll need an example. I'll go right ahead and introduce our Endpoint type, which we'll use to ensure client-server type safety. A value of type Endpoint is an object that describes an endpoint on the server. The record in the Endpoint constructor holds two values: a method (GET, POST, PUT, DELETE, ...) and a url:
+    </p>
+    <code>
+    data Endpoint qp body return = Endpoint {
+      method :: Method,
+      url :: String
+    }
+    </code>
+    <p>
+    This Endpoint type has no less than three Phantom Type parameters: qp (abbreviation for Query Parameter), body and ret (return). As you can see, these parameters show up on the left side of the equation, but not on the right side, the constructor side. 
+    </p>
+
+    <h3>This is getting hard! An example maybe?</h3>
+    <p>
+     An example of a value of type Endpoint would be:
+    </p>
+    <code>
+    newOrderEndpoint = Endpoint { method :: POST, url: "/neworder" }
+    </code>
+    <p>
+    Now, what are the values of qp, body and ret for our newOrderEndpoint? Does the compiler know? Nope! The compiler has no way of inferring what qp, body and ret would be, since we don't pass any values of those types into the constructor. Instead, we have to provide these Phantom Types ourselves! These types really are "Phantoms": They exist only in the type system, not in the "value world".
+    </p>
+    <p>
+    Let's imagine these are the characteristics of our newOrderEndpoint (remember, it's an example!):
+    <ul>
+      <li> We want to pass the clientname in the query parameter string </li>
+      <li> We pass the Order object in the body of our request</li>
+      <li> When succesful, we get all orders for the client back</li>
+    </ul>
+    </p>
+    <p>
+    The full declaration of the Endpoint would then be:
+    </p>
+    <code>
+    newOrderEndpoint :: Endpoint String Order (Array Order)
+    newOrderEndpoint = Endpoint { method :: POST, url: "/neworder" }
+    </code>
+    <p>
+    In the type declaration we've incorporated the described characteristics: takes a string in the Query parameters, takes an Order in the body, and returns an Array of Orders: qp = String, body = Order, ret = Array Order.
+    </p>
+
+    <h3>Phantom Types at work: execEndpoint and hostEndpoint</h3>
+    <p>
+    Now what does this buy us? This is just a description of the Endpoint... We don't have any way to make requests, or handle requests that use this Endpoint type! It's time to introduce two functions, execEndpoint and hostEndpoint, that will show why we declared these Phantom Types in the first place!
+    </p>
+    <code>
+    execEndpoint :: forall eff qp body ret. 
+      (Serializable qp, EncodeJson body, DecodeJson ret) =>
+        Endpoint qp body ret -> 
+        qp -> 
+        body -> 
+        Aff (ajax :: AJAX | eff) ret
+    </code>
+    <p>
+    We'll start with execEndpoint. The first line constrains the types we can use in execEndpoint: First we require that anything we want to use as query parameter is Serializable. Serializable is a typeclass, which constrains us to use only values for qp that can be written to and read from the url. Secondly, we require that body can be Encoded to JSON and that the return value can be Decoded from JSON (EncodeJson and DecodeJson are typeclasses defined in purescript-argonaut). The rest of the lines are the "actual" type signature. ExecEndpoint takes an Endpoint, a query parameter and a body, and returns an "Aff", which is an action that will be executed asynchroneously. 
+    </p>
+    <p>
+    Notice however that the query parameter and the body that we pass to execEndpoint need to be of the same type as the ones we provided when making the newOrderEndpoint type signature! This is the magic of Phantom Types! An example of how to use this should hopefully clear up some confusion:
+    </p>
+    <code>
+      do 
+        allAmazonOrders <- execEndpoint newOrderEndpoint "Amazon.com" myOrder 
+        log allAmazonOrders
+    </code>
+    <p>
+    The phantom types are doing their job here: If myOrder is not a value with type Order, the compiler will complain. Secondly, if allAmazonOrders is not being treated as a value of type Array Order in the rest of my program, the compiler will complain. We have type safety on the client side! 
+    </p>
+    <p>
+    Something very similar is happening on the server side. I'll omit a few implementation details for brevity:
+    </p>
+    <code>
+    hostEndpoint :: forall qp body ret eff. 
+      (Serializable qp, DecodeJson body, EncodeJson ret) =>
+        App -> 
+        Endpoint qp body ret -> 
+        Handler (express :: EXPRESS, console :: CONSOLE | eff) qp body ret -> 
+        Eff (express :: EXPRESS, console :: CONSOLE | eff) Unit
+    </code>
+    <p>
+    First, the constraints on the first line are the same as for execEndpoint, just mirrored since we're now on the other side of the wire. In the rest of the type signature, App is an Express application and Handler is a function that gets executed when we receive a request on the url specified in the endpoint, and it receives the query parameters and the http request body as parameters. As you can see in this type signature, the query parameter(s) and body are the same types as the ones we declared in the Endpoint object! This means that also on the serverside we have type safety!
+    </p>
+    <p>
+    I realize that for PureScript beginners this might be not so easy to grasp on first read, but don't despair. I don't want to explain every detail here, that's what Phil's book is for! As long as you get the major concepts I'm more than happy. Let's look at an example of how we would use hostEndpoint to implement an Endpoint on our Express server that listens on url "/neworder" and receives an order, saves it to the database with the function insertOrder and returns all orders for a certain client with the function getAllOrders:
+    </p>
+    <code>
+    hostEndpoint myExpressApp newOrderEndpoint handleNewOrder
+      where 
+        handleNewOrder clientname {body: order} = do
+          insertOrder clientname order 
+          getAllOrders clientname
+    </code>
+
+    <h3>Finally, the end!</h3>
+    <p>
+    Phew, we made it through! I hope this is at least semi-clear to people new to PureScript. Feel free to ping me on Twitter if it isn't! I encapsulated these types and functions in a small library called <a href="https://github.com/FrigoEU/purescript-endpoints-express">purescript-endpoints-express</a>, even though it's relatively simple to implement yourself. This repo also has a small example that I think can be very enlightening. Phantom Types are great! They're a fairly simple concept once you get some practice with them, and they can lead you to solutions where type safety seems hard or impossible to maintain.
+    </p>
+    </div>
+    </div>
+</div>
+</body>
+</html>

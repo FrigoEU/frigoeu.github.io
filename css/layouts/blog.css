@@ -3,6 +3,9 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
+body{
+  -webkit-font-smoothing: antialiased;
+}
 
 a {
     text-decoration: none;
@@ -124,4 +127,29 @@ h3 {
 
 .social{
   height: 44px;
+}
+
+.actual-text{
+  max-width: 800px;
+
+  font-family: medium-content-serif-font,Georgia,Cambria,"Times New Roman",Times,serif;
+  letter-spacing: .01rem;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1.58;
+  letter-spacing: -.003em;
+  color: rgba(0,0,0,0.8);
+}
+.actual-text h3{
+  font-weight: 500;
+  font-size: 1.25em;
+}
+.actual-text code{
+  font-family: monospace,monospace;
+  display: block;
+  background: rgba(61, 79, 93, 0.13);
+  font-size: 0.8em;
+  white-space: pre;
+  /* overflow: scroll; */
 }
