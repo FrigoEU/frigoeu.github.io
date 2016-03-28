@@ -71,13 +71,13 @@
 
     <h3>Phantom Types</h3>
     <p>
-    So let's start from an "ADT", or Abstract Data Type:
+    So let's start from an "ADT", or Algebraic Data Type:
     </p>
     <code> 
     data Maybe a = Nothing | Just a 
     </code>
     <p>
-    I'm declaring a new type here, called Maybe. Maybe has two data constructors, so two kinds of values that are of the type Maybe: Nothing, and Just a. Nothing takes no other value, but Just a does. (Just 2) is a value of type (Maybe Int). So the a in the above data type declaration is polymorphic (meaning it can get filled in by any other type), and in our example we fill it in with Int.
+    I'm declaring a new type here, called Maybe. Maybe has two data constructors, so two kinds of values that are of the type Maybe: Nothing, and Just a. Nothing takes no other value, but Just a does. (Just 2) is a value of type (Maybe Int). So the a in the above data type declaration is parametrized (meaning it can get filled in by any other type), and in our example we fill it in with Int.
     </p>
     <p>
     A phantom type parameter is a type parameter that appears on the left side of the equality sign, but <b>not</b> on the right side. This means that when creating a value of a type that incorporates a phantom type parameter, you don't provide a value of that phantom type. This probably sounds very weird, so we'll need an example. I'll go right ahead and introduce our Endpoint type, which we'll use to ensure client-server type safety. A value of type Endpoint is an object that describes an endpoint on the server. The record in the Endpoint constructor holds two values: a method (GET, POST, PUT, DELETE, ...) and a url:
