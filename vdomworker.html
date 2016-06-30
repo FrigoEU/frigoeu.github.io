@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Improving Web Worker usage in PWA's (and an implementation in PureScript)</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+      <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
+    <!--<![endif]-->
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="css/layouts/blog-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+      <link rel="stylesheet" href="css/layouts/blog.css">
+    <!--<![endif]-->
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-74111573-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</head>
+<body>
+<div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+        <div class="header">
+            <h1 class="brand-title">Simon Van Casteren</h1>
+            <h2 class="brand-tagline">Blogposts</h2>
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a class="pure-button" href="index.html">Posts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="pure-button" href="about.html">About</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+    <h1 class="content-subhead">2016-06-26</h1>
+    <h1>Improving Web Worker usage in PWA's (and an implementation in PureScript)</h1>
+    <div class="actual-text">
+      <p> A few months back <a href="https://github.com/nolanlawson/">Nolan Lawson </a> released <a href="https://www.pokedex.org/">pokedex.org </a>. This marked the start of the "Progressive Web Apps" hype and I've been following the movement very closely. I love the web, and think the browser features underlying the surge of PWA's are a great thing for the web. These features include Service Workers, Background Sync, (improved) IndexedDB, Install to Home Screen and more. What interested me the most in Nolan's pokedex app however, was the use of Web Workers in virtual-dom based applications. Web Workers have been around for some time and I had been thinking about applying them to virtual-dom before I even heard of pokedex.org, but never figured out where to start. Nolan paved the way and in this post I'd like to build upon his work. This post is broken down into two parts. The first part contains the ideas and is not language-specific, the second part shows an implementation of the ideas in PureScript.</p>
+
+      <h3>Web Worker all the things!</h3>
+      <p> Pokedex.org showed that you can run most of your app in a Web Worker. This includes state management, AJAX, websockets and access to Web Storage. The goal is to offload as much of the JavaScript work as possible to a seperate thread, so our UI thread is free to focus solely on the DOM. The web app will look and feel many times smoother, and this becomes even more pronounced on mobile devices with multiple, but low-powered CPU cores. Virtual-dom based rendering allows us to build our views in a seperate thread, even without having direct access to the DOM. The idea is simple: you build virtual-dom trees on the worker thread, and send patches to the UI thread.  </p>
+
+      <p> To get this to work however, you need a way to send virtual-dom patches from the worker thread to the UI thread which basically means it needs to be serializable to JSON. Nolan has been so kind to make <a href="https://github.com/nolanlawson/vdom-serialized-patch">vdom-serialized-patch </a> that does just that for virtual-dom. Essentially it strips down the original virtual-dom patch object to its bare essentials and optimizes it for JSON.stringify serialization. This string then gets sent over to the UI thread, where a simple JSON.parse gives you a patch that can be applied to the real DOM.  </p>
+
+      <p> So far so good, but what I believed needed improvement in pokedex.org was the registration of event handlers on one hand, and communicating the resulting user interactions back to the worker thread on the other hand. Nolan took a very ad-hoc approach to this: Custom event handler registrations for every "kind" of virtual-dom patch, and custom JSON object messages to relay back information to the worker thread. This is perfect for a relatively simple application like pokedex.org, but I think we can improve on this.  </p>
+      <p>
+      Cutting to the chase, this is what I came up with:
+        <ol>
+          <li>A function with which you can define event handlers in the worker thread. The event is described not only by a DOM event like "onclick" but also by information that the UI thread needs to extract from the DOM event and then send back to the worker thread.</li>
+          <li>Serialization code on the worker thread that filters these event handler functions, assigns each of them a unique number, throws the number + function into a map, and alters the virtual-dom patch object with information about the event and the sequence number. The patch is then sent to the UI thread.</li>
+          <li>Deserialization code on the UI thread that registers the actual event handlers which simply extract the information requested and send it back to the worker thread together with the sequence number.</li>
+          <li>Handler code that listens for these messages, looks up the sequence number in the big map and executes the associated function that we created in step 1 with the extracted data.</li>
+        </ol>
+      </p>
+
+      <p> That's it! It's a pretty simple concept and I'm surprised I haven't seen it anywhere else. Angular2's webworker support is similar in idea (specifying up front what the UI thread needs to extract), but it's exclusive to the Angular2 framework unfortunately.</p>
+
+
+      <h3> An implementation in PureScript </h3>
+
+      <p> Now how does this look in practice?  </p>
+
+      <h5> purescript-webworkers </h5>
+
+      <p> First, if I wanted to start using webworkers heavily, I needed a way to allow type-safe communication between worker threads. So I made <a href="https://github.com/FrigoEU/purescript-webworkers">purescript-webworkers</a>. It's a library that provides FFI bindings to the JS webworkers API. I added a tiny abstraction called "Channel" which uses a phantom type to enforce type safety. This is exactly the same concept as I explained in <a href="http://frigoeu.github.io/phantomtypes.html">my previous blog post</a>. Example: </p>
+
+      <code>
+      -- Phantom Type!
+      integerChannel :: Channel Int
+      integerChannel = Channel "myIntegerChannel"
+
+      -- Registering a handler on the UI thread
+      main :: forall eff. Eff (ownsww :: OwnsWW | eff) Unit
+      main = do
+        ww <- mkWorker "myworker.js"
+        let channels = registerChannel empty integerChannel (\i -> log $ show i)
+        onMessageFromWorkerC ww channels
+
+      -- Sending a message on the worker thread
+      main :: forall eff. Eff (isww :: IsWW | eff) Unit
+      main = postMessageC integerChannel 42
+      </code>
+
+      <p> Now that we have channels, we can send stuff back and forth between threads while the compiler enforces type safety for us. Peace of mind!</p>
+
+      <p> Aside: PureScript's extensible Eff monad allowed me to define two effect types IsWW and OwnsWW. These effects "bubble up" to the main function of both the UI and Web Worker programs, so the compiler can enforce that UI thread and worker thread code don't get mixed up. A beautiful application of the Eff monad, that is unfortunately not the subject of this blog post!  </p>
+
+      <h5> purescript-vdom-worker </h5>
+      <p> This library implements the 4 steps outlined above. It works and I've built fully functioning apps with it, but it's far from finished and that's the main reason why I'm writing this post. I'd like to show what I already have and explain that after the initial setup, using it is pretty easy and simple. I still need lots of help to clean up the implementation and refine the abstractions though. I'm a bit embarrased about how it looks at the moment, but I'll gladly swallow my pride if we can make some progress on this very important technique.</p>
+
+      <p> I've decided not to capture this in anything "framework-y" since I'm not a fan of frameworks. I like libraries better so you can mix, match, improve and rewrite the functions as you see fit.</p>
+
+      <p> Now, some code. The main concept is called WEvent ("WorkerEvent" -- Awful name!). of which you make an instance like this: </p>
+
+      <code>
+      -- notice the ScreenXY phantom type
+      clickXY :: WEvent ScreenXY
+      clickXY = WEvent {event: "click", tag: "screenxy", decodeJson: decodeJson} -- Don't mind the decodeJson...
+
+      newtype ScreenXY = ScreenXY {x :: Int, y :: Int}
+      </code>
+
+      <p> On the UI thread we make a function that specifies how to extract the ScreenXY value from the click event: </p>
+
+      <code>
+      instance isForeignScreenXY :: IsForeign ScreenXY where
+        read obj = do
+          x <- readProp "screenX" obj
+          y <- readProp "screenY" obj
+          return $ ScreenXY {x, y}
+      </code>
+
+      <p>And then add some "glue" that causes patches coming in on the patchesChannel to be applied using extractXY to get the information needed from the event, and then send it back on the wEventsChannel.  </p>
+
+      <code>
+      main = do
+        let allWEvents = registerWEventHandler empty clickXY extractXY
+        let mdh = makeDOMHandlersForWEvents ww wEventsChannel allWEvents
+        let chs = registerChannel empty patchesChannel (\serPs -> applyPatch node serPs mdh)
+      </code>
+
+      <p> On the worker thread, we define a simple component that registers an event handler with the "on" function.  </p>
+
+      <code>
+      -- What effects should be run will be passed in to the function
+      myDiv :: forall eff. (ScreenXY -> Eff eff Unit) -> VTree
+      myDiv effects = div ps children
+        where 
+          ps = props [on clickXY effects]
+          children = [vtext "click me and I'll run some effects"]
+      </code>
+
+      <p> And also on the worker thread we have to do some one time wiring. For this example, our "effects" function will be simple logging. In practice this probably is an update-state-and-rerender function. </p>
+
+      <code>
+      main = do
+        {functionSerializer, handler} <- mkWorkerFunctionsForWEvents
+        let oldTree = div (props []) []
+        let newTree = myDiv (\{x,y} -> log ("clicked at " <> show x <> ", " <> show y))
+        let patches = diff oldTree newTree
+        let serializedPatches = serializePatch functionSerializer patches
+        postMessageC patchesChannel serializedPatches
+        onmessageC (registerChannel empty wEventsChannel handler)
+      </code>
+
+      <p> For a fully functional example, check the test directory in <a href="https://github.com/FrigoEU/purescript-vdom-worker">the repository </a>.  </p>
+
+      <p> Overall, I feel this library can be MUCH improved. I'm not sure how though, so any ideas are extremely welcome. Everything works, but it's not refined, feels clunky, and the internal implementation is just ugly. I'm sure there are some PureScript/Haskell experts out there that can come up with solutions to the many warts that remain in the library. In the repo, I made a schema that hopefully makes it clear(er) how the different parts of the library fit together.  </p>
+
+      <p> A sample of the things that still need solving: </p>
+
+      <ul>
+        <li>Reducing usage of the FFI and better library-internal type safety would be great. I feel I could do something with existentials, but I don't understand them well enough yet to see how I could use them here.</li>
+        <li> The map from sequenceNumber to handler that we keep on the worker side keeps growing. So far the JS engines seem to be handling this pretty well, but I do think we'll need some kind of (simple) garbage collection eventually.  </li>
+        <li> The decodeJson property on WEvent handler is ugly. Even though it's not harmful, it looks extremely weird if you don't know the internals of the library.</li>
+        <li> Better names for the various interfaces. I've wracked my brain over this since I find it really important, but I feel the names we have now ("FunctionSerializer", "mkWorkerFunctionsForWEvents", "DeserializeHandlers", "mkDeserializeHandlersForWEvents", "IsWW", "OwnsWW", "WEvent" itself) are still awful. I'm glad I have the test code and the overview schema to remind me how everything fits together, because it sure as hell ain't clear by the names.  </li>
+        <li> Supporting older browsers that don't have Web Worker support. This is pretty easy, but just needs some time put in.</li>
+        <li> Something that's still open is how to do the first render efficiently. Right now I just make an empty div as the very first render on both sides of the wall, and then send the actual first render as a big diff. I'm unsure of the performance characteristics of this, but so far it hasn't been a problem. Something else in the same domain I would like to explore is how to support server-side rendering.</li>
+      </ul>
+
+      <p> Thanks for reading! </p>
+    </div>
+</div>
+</body>
+</html>
