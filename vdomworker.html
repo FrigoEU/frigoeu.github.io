@@ -50,7 +50,7 @@
     <h1 class="content-subhead">2016-06-26</h1>
     <h1>Improving Web Worker usage in PWA's (and an implementation in PureScript)</h1>
     <div class="actual-text">
-      <p> A few months back <a href="https://github.com/nolanlawson/">Nolan Lawson </a> released <a href="https://www.pokedex.org/">pokedex.org </a>. This marked the start of the "Progressive Web Apps" hype and I've been following the movement very closely. I love the web, and think the browser features underlying the surge of PWA's are a great thing for the web. These features include Service Workers, Background Sync, (improved) IndexedDB, Install to Home Screen and more. What interested me the most in Nolan's pokedex app however, was the use of Web Workers in virtual-dom based applications. Web Workers have been around for some time and I had been thinking about applying them to virtual-dom before I even heard of pokedex.org, but never figured out where to start. Nolan paved the way and in this post I'd like to build upon his work. This post is broken down into two parts. The first part contains the ideas and is not language-specific, the second part shows an implementation of the ideas in PureScript.</p>
+      <p> A few months back <a href="https://github.com/nolanlawson/">Nolan Lawson </a> released <a href="https://www.pokedex.org/">pokedex.org </a>. This was one of the triggers of the "Progressive Web Apps" hype and since then I've been following the movement very closely. I love the web, and think the browser features underlying the surge of PWA's are a great thing for the web. These features include Service Workers, Background Sync, (improved) IndexedDB, Install to Home Screen and more. What interested me the most in Nolan's pokedex app however, was the use of Web Workers in virtual-dom based applications. Web Workers have been around for some time and I had been thinking about applying them to virtual-dom before I even heard of pokedex.org, but never figured out where to start. Nolan paved the way and in this post I'd like to build upon his work. This post is broken down into two parts. The first part contains the ideas and is not language-specific, the second part shows an implementation of the ideas in PureScript.</p>
 
       <h3>Web Worker all the things!</h3>
       <p> Pokedex.org showed that you can run most of your app in a Web Worker. This includes state management, AJAX, websockets and access to Web Storage. The goal is to offload as much of the JavaScript work as possible to a seperate thread, so our UI thread is free to focus solely on the DOM. The web app will look and feel many times smoother, and this becomes even more pronounced on mobile devices with multiple, but low-powered CPU cores. Virtual-dom based rendering allows us to build our views in a seperate thread, even without having direct access to the DOM. The idea is simple: you build virtual-dom trees on the worker thread, and send patches to the UI thread.  </p>
@@ -134,7 +134,7 @@
         let chs = registerChannel empty patchesChannel (\serPs -> applyPatch node serPs mdh)
       </code>
 
-      <p> On the worker thread, we define a simple component that registers an event handler with the "on" function.  </p>
+      <p> On the worker thread, we define a simple component that registers an event handler with the "on" function. This is probably the most important code snippet, as it shows how easy day-to-day use actually is. </p>
 
       <code>
       -- What effects should be run will be passed in to the function
@@ -160,12 +160,13 @@
 
       <p> For a fully functional example, check the test directory in <a href="https://github.com/FrigoEU/purescript-vdom-worker">the repository </a>.  </p>
 
-      <p> Overall, I feel this library can be MUCH improved. I'm not sure how though, so any ideas are extremely welcome. Everything works, but it's not refined, feels clunky, and the internal implementation is just ugly. I'm sure there are some PureScript/Haskell experts out there that can come up with solutions to the many warts that remain in the library. In the repo, I made a schema that hopefully makes it clear(er) how the different parts of the library fit together.  </p>
+      <p> Overall, I feel this library can be MUCH improved. I'm not sure how though, so any ideas are extremely welcome. Everything works, but it's not refined, feels clunky, and the internal implementation is just ugly. I'm sure there are some PureScript/Haskell experts out there that can come up with solutions to the many warts that remain in the library. In <a href="https://github.com/FrigoEU/purescript-vdom-worker">the repo</a>, I made a schema that hopefully makes it clear(er) how the different parts of the library fit together.  </p>
 
       <p> A sample of the things that still need solving: </p>
 
       <ul>
-        <li>Reducing usage of the FFI and better library-internal type safety would be great. I feel I could do something with existentials, but I don't understand them well enough yet to see how I could use them here.</li>
+        <li> Reducing usage of the FFI and better library-internal type safety would be great. I feel I could do something with existentials, but I don't understand them well enough yet to see how I could use them here.</li>
+        <li> It would be nice if we could already define some WEvent's + event handlers beforehand, and also allow users to define new ones on the fly. </li>
         <li> The map from sequenceNumber to handler that we keep on the worker side keeps growing. So far the JS engines seem to be handling this pretty well, but I do think we'll need some kind of (simple) garbage collection eventually.  </li>
         <li> The decodeJson property on WEvent handler is ugly. Even though it's not harmful, it looks extremely weird if you don't know the internals of the library.</li>
         <li> Better names for the various interfaces. I've wracked my brain over this since I find it really important, but I feel the names we have now ("FunctionSerializer", "mkWorkerFunctionsForWEvents", "DeserializeHandlers", "mkDeserializeHandlersForWEvents", "IsWW", "OwnsWW", "WEvent" itself) are still awful. I'm glad I have the test code and the overview schema to remind me how everything fits together, because it sure as hell ain't clear by the names.  </li>
