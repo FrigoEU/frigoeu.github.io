@@ -167,7 +167,7 @@
       </p>
 
       <p>
-        Secondly, and this is a huge bonus in my opinion: Since we’re serializing the partial actions into a prop of the VTree and a string, these can now be diff’d! A huge problem with vdom systems is that event handlers that are being attached to properties can't be diff’d so every run of the view function results into a bunch of patches to event handlers properties that probably didn't change. As we don’t attach any functions to the Vdom now but encoded strings, this is no longer a problem. Note that this actually doesn’t have anything to do with Web Workers, but is just an added benefit that falls out of being able to represent the event handlers as pure data.
+        Secondly, and this is a huge bonus in my opinion: Since we’re serializing the partial actions into a prop of the VTree and a string, these can now be diff’d! A huge problem with vdom systems is that event handlers that are being attached to properties can't be diff’d so every run of the view function results into a bunch of patches to event handlers properties that probably didn't change. As we don’t attach any functions to the Vdom now but encoded strings, this is no longer a problem. Note that this actually doesn’t have anything to do with Web Workers, but is just an added benefit that falls out of being able to represent the event handlers as pure data. I'm unsure how React or Elm takes care of this, but I'm sure virtual-dom itself doesn't have a solution for it by default.
       </p>
 
       <p>
