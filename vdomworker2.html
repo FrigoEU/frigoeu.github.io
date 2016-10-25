@@ -56,7 +56,7 @@
       </p>
 
       <p>
-        I started thinking about a different way of doing things. I’m a fan of what is now known as the “Elm Architecture”, having your event handlers send Actions to a top level update function that updates the state of your application. My thought was “maybe if I constrain myself to supporting only this Action way of thinking rather than any arbitrary event handler, I might end up with something better”. After thinking about it for a while I thought it would be super if I could send the UI thread everything it needed to know how to make an Action when a certain DOM event happens. That way I could just feed that Action straight into my update function and I wouldn't have to maintain any state at all at the web worker side: a clear win!
+        I started thinking about a different way of doing things. I’m a fan of what is now known as the “Elm Architecture”, having your event handlers send Actions to a top level update function that updates the state of your application. My thought was “maybe if I constrain myself to supporting only this Action way of thinking rather than any arbitrary event handler, I might end up with something better”. After thinking about it for a while I thought it would be super if I could send the UI thread everything it needed to know how to make an Action when a certain DOM event happens. That way I could just feed that Action straight into my update function and I wouldn't have to maintain any state at all at the Web Worker side: a clear win!
       </p>
 
       <p>
@@ -70,11 +70,17 @@
       </p>
 
       <code>
-      newtype SEvent a = SEvent { event :: String, id :: String, handle :: DOM.Event -> Eff (dom :: DOM, ownsww :: OwnsWW, err :: EXCEPTION) (F a))
+      newtype SEvent a = SEvent { event :: String
+                                , id :: String
+                                , handle :: DOM.Event -> Eff (dom :: DOM, ownsww :: OwnsWW, err :: EXCEPTION) (F a))
 
       -- for example:
-      Change :: SEvent String
-      change = SEvent {event: ‘change’, id: ‘changeValue’, handle: \ev -> pure $ readProp "target" (toForeign ev) >>= readProp "value" >>= readString}
+      change :: SEvent String
+      change = SEvent { event: ‘onchange’
+                      , id: ‘onchangeValue’
+                      , handle: \ev -> pure $ readProp "target" (toForeign ev)
+                                       >>= readProp "value"
+                                       >>= readString}
       </code>
 
       <p>
@@ -98,7 +104,7 @@
       </code>
 
       <p>
-        My idea is to send a partial Action from the web worker to the main thread, and have the main thread fill in the value extracted from the DOM event in a certain place. But how does the main thread now how to construct this Action?
+        My idea is to send a partial Action from the Web Worker to the main thread, and have the main thread fill in the value extracted from the DOM event in a certain place. But how does the main thread now how to construct this Action?
       </p>
 
       <p>
@@ -118,20 +124,19 @@
       <h3> Putting things together </h3>
 
       <p>
-        Here’s the signature of on:
+        Here’s the signature of on, which enforces that you have a "val" property of the correct type in the record argument of your Action constructor:
       </p>
 
       <code>
-      on :: forall a obj action.
-      (Monoid a, EncodeJson action) =>
-      SEvent a
-      -> ({val :: a | obj} -> action)
-      -> {val :: a | obj}
-      -> Prop
+      on :: forall a obj action. (Monoid a, EncodeJson action) =>
+            SEvent a
+            -> ({val :: a | obj} -> action)
+            -> {val :: a | obj}
+            -> Prop
       </code>
 
       <p>
-        And this is how you use it on the web worker side when building your view function:
+        And this is how you use it on the Web Worker side when building your view function:
       </p>
 
       <code>
@@ -148,26 +153,28 @@
       </p>
 
       <p>
-        For a fully functioning example including the initial boilerplate needed, check out the <a href="https://github.com/FrigoEU/purescript-vdom-worker/tree/master/test">test folder from purescript-vdom-worker</a>.
+        For a fully functioning example including the initial boilerplate needed, check out the <a href="https://github.com/FrigoEU/purescript-vdom-worker/tree/master/test">test folder from purescript-vdom-worker</a>. For the implementation details (like how everything gets serialized into strings exactly) check out the <a href="https://github.com/FrigoEU/purescript-vdom-worker/blob/master/src/VirtualDOM/SEvent.purs">SEvent.purs source file</a> which I tried to make as readable as possible and added a bunch of comments.
       </p>
 
-      <h3> Conclusion </h3>
+      <h3> Benefits </h3>
 
       <p>
         OK, so what does this give us?
       </p>
 
       <p>
-        First of all, no state needs to be maintained at the web worker side. Actions will just come in from the UI thread and they’ll be dropped into our update function. The implementation is straightforward and requires very little “machinery”.
+        First of all, no state needs to be maintained at the Web Worker side. Actions will just come in from the UI thread and they’ll be dropped into our update function. The implementation is straightforward and requires very little “machinery”.
       </p>
 
       <p>
-        Secondly, and this is a huge bonus in my opinion: Since we’re serializing the partial actions into a prop of the VTree and a string, these can now be diff’d! A huge problem with vdom systems is that event handlers that are being attached to properties can't be diff’d so every run of the view function results into a bunch of patches to event handlers properties that probably didn't change. As we don’t attach any functions to the Vdom now but encoded strings, this is no longer a problem. Note that this actually doesn’t have anything to do with web workers, but is just an added benefit that falls out of being able to represent the event handlers as pure data.
+        Secondly, and this is a huge bonus in my opinion: Since we’re serializing the partial actions into a prop of the VTree and a string, these can now be diff’d! A huge problem with vdom systems is that event handlers that are being attached to properties can't be diff’d so every run of the view function results into a bunch of patches to event handlers properties that probably didn't change. As we don’t attach any functions to the Vdom now but encoded strings, this is no longer a problem. Note that this actually doesn’t have anything to do with Web Workers, but is just an added benefit that falls out of being able to represent the event handlers as pure data.
       </p>
 
       <p>
         Third, this paves the way to being able to already include event handlers into a server side rendered page, reducing (not eliminating) the <a href="https://twitter.com/aerotwist/status/729712502943174657">Uncanny Valley</a> effect mentioned by <a href="https://twitter.com/aerotwist">Paul Lewis</a> where server rendered views are visible but not yet interactive. I haven’t implemented this yet so it’s still theoretical, but I think this could work. This is on my short list for investigation.
       </p>
+
+      <h3> Conclusion </h3>
 
       <p>
         I’m probably forgetting some pro’s/con’s, and I’m not saying this is the optimal solution or implementation, but I feel I’m definitely moving into the right direction by transforming event handlers into data. I think it’s a really powerful concept, and I’m strengthened in that belief by both the second and the third pro I listed, which kind of “fell out” of this solution without actively looking for it. Of course PureScript’s amazing type system helps keep everything clean, as always.
