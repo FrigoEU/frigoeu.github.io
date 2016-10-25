@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Worker all the things: Part 2!</title>
+    <link rel="stylesheet" href="css/pure-min.css">
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+      <link rel="stylesheet" href="css/grids-responsive-min.css">
+    <!--<![endif]-->
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="css/layouts/blog-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+      <link rel="stylesheet" href="css/layouts/blog.css">
+    <!--<![endif]-->
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-74111573-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+</head>
+<body>
+<div id="layout" class="pure-g">
+  <div class="sidebar pure-u-1 pure-u-md-1-4">
+    <div class="header">
+      <h1 class="brand-title">Simon Van Casteren</h1>
+      <h2 class="brand-tagline">Blogposts</h2>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a class="pure-button" href="index.html">Posts</a>
+          </li>
+          <li class="nav-item">
+            <a class="pure-button" href="about.html">About</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <div class="content pure-u-1 pure-u-md-3-4">
+    <h1 class="content-subhead">2016-10-25</h1>
+    <h1>Web Worker all the things: Part 2!</h1>
+    <div class="actual-text">
+
+      <p>
+        Hey guys and gals, I’m at it again! The quest for running my whole application in a Web Worker continues. In <a href="/vdomworker.html">my last post</a> I explained my first attempt. It boiled down to assigning sequence numbers to every event handler I wanted to register, maintaining a map from sequence numbers to handlers and then sending these sequence numbers back and forth across threads. It works, but left me very unsatisfied. Among other things, the ever growing map of event handlers gave me nightmares, and even after working on it and with it for days, I just couldn’t keep the whole idea in my head. It was just too complicated.
+      </p>
+
+      <p>
+        I started thinking about a different way of doing things. I’m a fan of what is now known as the “Elm Architecture”, having your event handlers send Actions to a top level update function that updates the state of your application. My thought was “maybe if I constrain myself to supporting only this Action way of thinking rather than any arbitrary event handler, I might end up with something better”. After thinking about it for a while I thought it would be super if I could send the UI thread everything it needed to know how to make an Action when a certain DOM event happens. That way I could just feed that Action straight into my update function and I wouldn't have to maintain any state at all at the web worker side: a clear win!
+      </p>
+
+      <p>
+        A side note: The code in this post is, as usual, written in PureScript, but the ideas stay very much the same in JavaScript. PureScript just helps a lot with getting all the types right.
+      </p>
+
+      <h3> The SEvent type </h3>
+
+      <p>
+        Telling the main thread what event to listen to is straightforward. I made an SEvent type like this:
+      </p>
+
+      <code>
+      newtype SEvent a = SEvent { event :: String, id :: String, handle :: DOM.Event -> Eff (dom :: DOM, ownsww :: OwnsWW, err :: EXCEPTION) (F a))
+
+      -- for example:
+      Change :: SEvent String
+      change = SEvent {event: ‘change’, id: ‘changeValue’, handle: \ev -> pure $ readProp "target" (toForeign ev) >>= readProp "value" >>= readString}
+      </code>
+
+      <p>
+        The handle property is obviously the most important one. In it you specify what the UI thread has to do when such a DOM event happens. Most of the time you just want to extract some information from the event, but you can also do some action to the DOM if you want. The id is just a string that has to be unique, so you can have multiple SEvents that all register eg: an onchange handler.
+      </p>
+
+      <p>
+        The only annoying thing is that you have to register every SEvent that you want to use in the UI thread code. This is because from the worker thread we send this id property to the UI thread, and there you need some list to look through all the available SEvents to find the right handle function to call. If anyone has any better ideas, please let me know! I didn't want to use a single ADT for all SEvents, because then users can't make their own…
+      </p>
+
+      <h3>
+        Sending “partial” actions
+      </h3>
+
+      <p>
+        Now that we have events and a way to extract information from them, how do we give the main thread all information to make a full Action from it? Let’s say we have an action like this:
+      </p>
+
+      <code>
+      data Action = EmailChanged String
+      </code>
+
+      <p>
+        My idea is to send a partial Action from the web worker to the main thread, and have the main thread fill in the value extracted from the DOM event in a certain place. But how does the main thread now how to construct this Action?
+      </p>
+
+      <p>
+        I decided to go for a solution that I guess you could call “pragmatic”. I just made an implicit constraint that every Action should have a constructor name and a record as its only argument. This record has to contain a property with the name ‘val’ where the main thread will fill in the value extracted from the DOM event (there’s a special case for Actions that don’t need any information from the main thread). The Purescript compiler helps you make this safe at the worker side, even though the implementation in the library requires some ffi magic but I’m fine with that. I added a constraint that the value property has to be a Monoid so you can use mempty to make a partial Action easily. So our above action becomes:
+      </p>
+
+
+      <code>
+      data Action = EmailChanged {val :: String}
+      </code>
+
+
+      <p>
+        I think this constraint isn't too much of a problem, and in my opinion it doesn't interfere with the usual Action modeling.
+      </p>
+
+      <h3> Putting things together </h3>
+
+      <p>
+        Here’s the signature of on:
+      </p>
+
+      <code>
+      on :: forall a obj action.
+      (Monoid a, EncodeJson action) =>
+      SEvent a
+      -> ({val :: a | obj} -> action)
+      -> {val :: a | obj}
+      -> Prop
+      </code>
+
+      <p>
+        And this is how you use it on the web worker side when building your view function:
+      </p>
+
+      <code>
+      myComponent :: VTree
+      myComponent = input [on change EmailChanged {val: mempty}] []
+      </code>
+
+      <p>
+        The “on” function serializes both the SEvent (change) and the Action (EmailChanged) into a String that will be deserialized on the UI thread. Some boilerplate is need on the UI thread. Whenever the input value changes, the EmailChanged action is sent back to the worker thread and fed into the update function.
+      </p>
+
+      <p>
+        I'm very happy that using these things in building your VTree (The PureScript type for vdom trees) is very easy. There is barely any added complexity when building components and screens.
+      </p>
+
+      <p>
+        For a fully functioning example including the initial boilerplate needed, check out the <a href="https://github.com/FrigoEU/purescript-vdom-worker/tree/master/test">test folder from purescript-vdom-worker</a>.
+      </p>
+
+      <h3> Conclusion </h3>
+
+      <p>
+        OK, so what does this give us?
+      </p>
+
+      <p>
+        First of all, no state needs to be maintained at the web worker side. Actions will just come in from the UI thread and they’ll be dropped into our update function. The implementation is straightforward and requires very little “machinery”.
+      </p>
+
+      <p>
+        Secondly, and this is a huge bonus in my opinion: Since we’re serializing the partial actions into a prop of the VTree and a string, these can now be diff’d! A huge problem with vdom systems is that event handlers that are being attached to properties can't be diff’d so every run of the view function results into a bunch of patches to event handlers properties that probably didn't change. As we don’t attach any functions to the Vdom now but encoded strings, this is no longer a problem. Note that this actually doesn’t have anything to do with web workers, but is just an added benefit that falls out of being able to represent the event handlers as pure data.
+      </p>
+
+      <p>
+        Third, this paves the way to being able to already include event handlers into a server side rendered page, reducing (not eliminating) the <a href="https://twitter.com/aerotwist/status/729712502943174657">Uncanny Valley</a> effect mentioned by <a href="https://twitter.com/aerotwist">Paul Lewis</a> where server rendered views are visible but not yet interactive. I haven’t implemented this yet so it’s still theoretical, but I think this could work. This is on my short list for investigation.
+      </p>
+
+      <p>
+        I’m probably forgetting some pro’s/con’s, and I’m not saying this is the optimal solution or implementation, but I feel I’m definitely moving into the right direction by transforming event handlers into data. I think it’s a really powerful concept, and I’m strengthened in that belief by both the second and the third pro I listed, which kind of “fell out” of this solution without actively looking for it. Of course PureScript’s amazing type system helps keep everything clean, as always.
+      </p>
+
+      <p>
+        I’m using the updated <a href="https://github.com/FrigoEU/purescript-vdom-worker">purescript-vdom-worker</a> in my current project and I’m very happy with it so far. Speaking of which, that new project is a collection of libraries for making full stack web apps in purescript plus an example/boilerplate project. I’m making it mostly for personal use, but it might be useful for other people as well. I’m very excited about it! My next post will go into depth on this, so stay tuned!
+      </p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
