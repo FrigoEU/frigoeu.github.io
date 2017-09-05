@@ -44,69 +44,120 @@
     <h1>A safe router for TypeScript</h1>
     <div class="actual-text">
 
-      <p> I've been making web applications for some time now and one thing that keeps annoying me is the use of magic strings for declaring and matching routes. An example in JavaScript, using Angular 1 and the most-used UI-router. </p>
+      <p> I've been making web applications for some time now and one thing that keeps annoying me is the use of magic strings for declaring and matching routes. Webapps are getting more and more complex and static typing is getting more and more traction as a tool of managing that complexity. But the backbone of any web application is its router and I've found current Router implementations to be terribly unsafe. Most router libraries follow the same kind of pattern: You define your routes by using strings with special syntax for capturing parameters in the URL. Here's an example in JavaScript/TypeScript, using Angular 1 and UI-Router. </p>
 
       <code>
-angular.module("myapp").config(function($stateProvider){
-  $stateProvider.state("employee", {
-    <em>url: "/employee/{employeeId:int},</em>
-    controller: "EmployeeCtrl",
-    templateUrl: "employee.html"
-  }
+        angular.module("myapp").config(function($stateProvider){
+          $stateProvider.state("employee", {
+            <b>url: "/employee/{employeeId:int},</b>
+            controller: "EmployeeCtrl",
+            templateUrl: "employee.html"
+          });
       </code>
 
-      <p> When the current url matches this route, angular will populate a "$stateParams" object for you with the parameters, in this case the employeeId. If you're using TypeScript, the compiler can not tell you that this $stateParams object is of type {employeeId: number}. </p>
+      <h3>Limitations of string-based route definitions</h3>
+      <p> When the current url matches this route, UI-Router will populate a "$stateParams" object for you with the parameters, in this case the employeeId. If you're using TypeScript, the compiler can not tell you that this $stateParams object is of type {employeeId: number}. </p>
 
-      <p> Similarly, when you want to like to the employee page, you use one of ui-router's helpers to make the correct url. You'll provide the state "employee" and an object with a property employeeId of type int. Again, the compiler has no way of telling you if the "employee" route actually exists, and whether the parameters you're passing on are the ones the employee route actually needs. Make a typo, pass an object with property employee instead of employeeId, etc and you have a bug at runtime. </p>
+      <p> Similarly, when you want to link to the employee page, you use one of UI-Router's helpers to make the correct url. You'll provide the string "employee" and an object with a property employeeId of type int. Again, the compiler has no way of telling you if the "employee" route actually exists, and whether the parameters you're passing on are the ones the employee route actually needs. Make a typo, pass an object with property employee instead of employeeId, etc and you have a bug at runtime. </p>
 
       <p> These problems get worse when you start restructuring routes, renaming them or adding and changing parameters. You have to manually make sure all sides of the equation stay consistent. </p>
 
       <p> It's a problem prevalent in pretty much every single web application, regardless of language used, framework, library, client-side, server-side. Only in languages with very fancy type systems (Haskell and PureScript that I know of) can you find implementations of routers that try to solve this problem. </p>
 
-      <p> I work in PureScript on my personal projects, but at work I'm writing TypeScript when working on the front-end. So I decided to make my own router library that makes all of these bugs disappear by construction. I have defined hundreds of routes over the years and have never needed very fancy route declarations, so the routes I want to be able to declare have a name and a record of properties with types that are serializable to a URL. More fancy features I have not needed, so I have not implemented them (yet?). </p>
+      <h3>Towards a better route: Requirements</h3>
+      <p> I work in PureScript on my personal projects, but at work I'm writing TypeScript when working on the front-end. So I decided to make my own router library that makes all of these bugs disappear by construction. I want to define my routers once, and get type-safe url builders and matchers.</p>
+
+      <p> I'm not fond of a lot of the fancier features that some routing libraries provide. I have defined hundreds of routes over the years and have never needed very many special features, so the routes I want to be able to declare have just a name and a record of properties with types that are serializable to a URL. </p>
 
       <p>TypeScript may not have the rock solid type system like PureScript, Haskell or Idris but in recent releases some very interesting features were added that allow us to do type-level programming reminiscent of the above mentioned ML-style languages. The important ones for this router implementation are <a href="https://blog.mariusschulz.com/2017/01/20/typescript-2-1-mapped-types">Mapped Types</a> and <a href="https://blog.mariusschulz.com/2017/01/06/typescript-2-1-keyof-and-lookup-types">keyof and Lookup Types</a>. </p>
 
-      <p> The code can be found on github at: <a href="">TODO</a> and can be installed via npm.</p>
-
-      <code>TODO</code>
-
-      <p> Nothing in the library is platform specific so you can use it in the browser or on NodeJs. The library has no dependencies (TODO remove lodash dep) and is only xx kb TODO , yy kb gzipped at the time of writing. It's tested by bunch of property based tests (shout out to <a href="https://github.com/jsverify/jsverify">JsVerify</a>). </p>
+      <h3>The result: typescript-safe-router</h3>
+    <p> After some iterations on the API and using it in my projects, I think typescript-safe-router works well and I'd like to see what others think. The code can be found <a href="https://github.com/FrigoEU/typescript-safe-router">on GitHub</a> and can be installed via npm.</p>
 
       <code>
-        import * as Router from "typescript-safe-router"; TODO naam?
+        npm install typescript-safe-router --save
+      </code>
+
+      <h3>Using typescript-safe-router</h3>
+      <p> Let's see what the code looks like. First import the library as you normally do in TypeScript: </p>
+
+      <code>
+        import {makeRoute, newRouter} from "typescript-safe-router";
       </code>
 
       <p> Here's how you declare the same employee route: </p>
 
-      <code>const employeeRoute = Router.makeRoute("employee", {employeeId: "number"})</code>
-
-      <p> Now you have a value of type Route. (TODO We refactoren heel da spel zodat we dat Route gewoon weglaten en die RouteMatcher teruggeven en dan hernoemen naar Route?). There's two methods on this type. The first one, which you'll use in your views, is called buildUrl:</p>
-
       <code>
-employeeRoute.buildUrl({employeeId: 5}); // "/employee/employeeid/5"
-employeeRoute.buildUrl({employee: 5}); // TypeChecker Error, property employeeId is missing
-employeeRoute.buildUrl({employeeId: "5"}); // TypeChecker Error, string instead of number
+        const employeeRoute = makeRoute("employee", {employeeId: "number"});
       </code>
 
-      <p> The building of url's is type-safe! The typechecker will only let us construct routes that exist, with fully correctly spelled and typed parameters. We've succesfully avoided these kinds of bugs by construction. Note: The encoding of parameters is pretty straight forward: /propertyname/propertyvalue/... . </p>
-
-      <p> The second method on the Route type is matchUrl: </p>
+      <p> Now you have a value of type Route. Route is just a pair of two methods. The first one, which you'll use whenever you want to make a link to this view, is called buildUrl:</p>
 
       <code>
-        employeeRoute.matchUrl("/employee/employeeid/5") // {employeeId: 5}
-        employeeRoute.matchUrl("/employee/employeeid/test") // null
-        employeeRoute.matchUrl("/employee/") // null
+        employeeRoute.buildUrl({employeeId: 5}); // "#/employee/employeeid/5"
+        employeeRoute.buildUrl({employee: 5}); // TypeChecker Error, property employeeId is missing
+        employeeRoute.buildUrl({employeeId: "5"}); // TypeChecker Error, string instead of number
       </code>
 
-      <p> When you check the type of employeeRoute.matchUrl, you'll see that is returns either null, or {employeeId: number}. The rest of your program can then be sure that, when this route is matched, the parameters are always of the correct types. Route matching is type-safe! </p>
+      <p> The building of url's is type-safe! The typechecker will only let us construct routes that exist, with fully correctly spelled and typed parameters. Bugs were you make URL's that are incorrect are now gone, and you can be sure of it.</p>
 
-      <p> These two methods are the two main building blocks of any router solution, and they are much better to use than existing solutions, albeit with less features. Most webapps need a way to try and find the route that matches a url from a whole list of routes. For that I added a small Router interface that will let you do just that: You register which routes you want to add to the list, and add a function that will get called with the (typed!) matched parameters when the route matches. This Router needs to return the same type for every route. For a React app this often means returning something of type JSXElement in every route: </p>
+      <p> The second method on the Route type is matchUrl. As the name says, this method checks if the url passed in matches the route definition, and returns the defined parameters. Otherwise, it returns null. </p>
 
-      <code>TODO</code>
+      <code>
+        employeeRoute.matchUrl("#/employee/employeeid/5") // {employeeId: 5}
+        employeeRoute.matchUrl("#/employee/employeeid/test") // null
+        employeeRoute.matchUrl("#/employee/") // null
+      </code>
 
-      <p> You can also just set some state or call some other functions and return null from every route handler. So this Router interface can be used in any framework you want. </p>
-      <p> I hope this library is useful for some people out there. It's purposefully tiny, simple and independent of any framework. But it is everything a router should be doing in my opinion. I'm very curious how people use it, what they feel can be improved and what is missing. Get in touch on Github! </p>
+      <p> When you check the type of employeeRoute.matchUrl, you'll see that it returns "{employeeId: number} | null". The rest of your program can then be sure that, when this route is matched, the parameters are always of the correct types. Better yet, the compiler ensures it. Route matching is type-safe! </p>
+
+      <p> These two methods are the two main building blocks of any router solution, and they are much safer to use than existing solutions, but with less features. </p>
+
+      <h3>Building a Router from Route's</h3>
+      <p> Router.matchUrl only let's you match against one Route, but most often you want to check which of a whole list of routes matches a url. Enter the "Router" interface that will let you do just that: You register which routes you want to see matched plus the function that will get called with the (typed!) matched parameters when that route matches. As we're working in TypeScript every one of these functions needs to return the same type for every route. For a React app this often means returning something of type JSX.Element in every route: </p>
+
+      <code>
+        import * as Messages from "./messages";
+        import * as Employees from "./employee";
+        import * as React from "react";
+        import {makeRoute, makeRouter, Router} from "./router";
+
+        export const messages = makeRoute("messages", {startDate: "date"});
+        export const employees = makeRoute("employees", {employeeId: "number"});
+
+
+        class App extends React.Component&#60{}, {}> {
+          private router: Router&#60JSX.Element>;
+
+          constructor(props: {}) {
+            super(props);
+            this.state = { session: null };
+        <b>
+            this.router = makeRouter(messages, ({startDate: Date}) => {
+              return &#60Message.Page startDate={startDate} />;
+              }).registerRoute(employees, ({employeeId: number}) => {
+                return &#60Employees.Page employeeId={employeeId} />;
+            });</b>
+
+            window.onhashchange = () => this.forceUpdate();
+          }
+
+          startPage(): JSX.Element {
+            return &#60div>You have arrived at the start page!&#60/div>;
+          }
+
+          render() {
+            let fromRouter = this.router.match(window.location.hash);
+            return (fromRouter === null) ? this.startPage() : fromRouter;
+          }
+        }
+      </code>
+
+      <p> You can also just set some state or call some other functions and return null from every route handler, so this Router interface can be used in any framework. </p>
+
+      <p> Nothing in the library is platform specific so you can use it in the browser and in NodeJs. The library has no dependencies and is only about 1kb minified and gzipped. It's tested by a bunch of property based tests (shout out to <a href="https://github.com/jsverify/jsverify">JsVerify</a>). I'm hoping all these things make using and contributing to the library easier, but if you have any problems let me know! </p>
+
+      <p> That's it! I hope this library can help you make some more bugs impossible in your codebases. It's tiny, simple and independent of any framework. But it is everything a router should be doing in my opinion. I'm very curious how people use it, what they feel can be improved and what is missing. Get in touch on Github! </p>
     </div>
   </div>
 </div>
