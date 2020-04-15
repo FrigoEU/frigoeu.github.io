@@ -65,6 +65,7 @@
             <li><a href="#tooling">Tooling</a></li>
             <li><a href="#packages">Package management</a></li>
             <li><a href="#eco">Ecosystem</a></li>
+            <li><a href="#buildtimes">Build times</a></li>
           </ul>
         </ul>
         This is not a tutorial. If you want to get started with Ur/Web, look at the <a href="#documentation">references listed here</a>
@@ -322,6 +323,12 @@
           <h2>Ecosystem</h2>
           <p>
             I'll be clear here: The amount of Ur/Web packages available is tiny. I haven't found this to be a big problem though: The language and standard library take care of most of my needs. Remember: you don't need a web server library, you don't need a front end framework and you don't need an ORM or data access library. Both FFI's are pretty easy to use (though more examples would be very useful) and I've used them both to integrate with C libraries like OpenSSL and browser functionality like requestAnimationFrame.
+          </p>
+        </section>
+          <section id="buildtimes">
+          <h2>Build times</h2>
+          <p>
+            At the time of writing, this is my biggest gripe with Ur/Web. The project mentioned above, which I have to admit is quite a big project, has gotten slightly slow to build. Thanks to the lsp server mentioned above, the typechecking feedback loop is very fast. It takes about 5 seconds to get typechecker feedback on my very biggest file. Most files are instant. However, actually building the executable has become a bit slow. It takes about 2 minutes to build the whole executeable from scratch. This is something that I'd love to see improved, and I've done some compiler experiments to get this feedback loop faster, but this still needs a lot of help and work.
           </p>
         </section>
       </div>
