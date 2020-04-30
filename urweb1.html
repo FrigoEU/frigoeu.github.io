@@ -137,7 +137,7 @@
   fun main (): transaction page = return &#60xml>
             &#60body>
               &#60button onclick={fn _ => users &#60- rpc (getUsers ()); 
-                                List.mapM (fn u => debug u.FirstName) users}/>
+                                List.app (fn u => debug u.FirstName) users}/>
             &#60/body>
   &#60/xml>
 
@@ -174,7 +174,7 @@
   fun main2 (): transaction page =
       users &#60- queryL1 (SELECT users.UserName
                       FROM users);
-      _ &#60- List.mapM (fn u => debug u.FirstName) users;
+      List.app (fn u => debug u.FirstName) users;
       return &#60xml>&#60/xml>
 
   (* /home/simonvancasteren/ur-proj/blog/main.ur:18:4: (to 22:3) Stuck unifying these records after canceling matching pieces:
