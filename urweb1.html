@@ -137,7 +137,7 @@
   fun main (): transaction page = return &#60xml>
             &#60body>
               &#60button onclick={fn _ => users &#60- rpc (getUsers ()); 
-                                List.app (fn u => debug u.FirstName) users}/>
+                                          List.app (fn u => debug u.FirstName) users}/>
             &#60/body>
   &#60/xml>
 
