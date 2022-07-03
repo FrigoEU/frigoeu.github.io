@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+      My software building philosophy and software stack
+    </title>
+    <link rel="stylesheet" href="css/pure-min.css">
+    <link rel="stylesheet" href="css/grids-responsive-min.css">
+    <link rel="stylesheet" href="css/layouts/blog.css">
+
+</head>
+<body>
+<div id="layout" class="pure-g">
+  <div class="sidebar pure-u-1 pure-u-md-1-4">
+    <div class="header">
+      <h1 class="brand-title">Simon Van Casteren</h1>
+      <h2 class="brand-tagline">Blogposts</h2>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a class="pure-button" href="index.html">Posts</a>
+          </li>
+          <li class="nav-item">
+            <a class="pure-button" href="talks.html">Talks</a>
+          </li>
+          <li class="nav-item">
+            <a class="pure-button" href="about.html">About</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <div class="content pure-u-1 pure-u-md-3-4">
+    <h1 class="content-subhead">2022-07-14</h1>
+    <h1>
+     My software building philosophy and software stack 
+    </h1>
+    <div class="actual-text">
+      <p>
+        The last few web-based projects I've been involved with have been increasingly successful. I've been getting more and more comfortable and confident in the way my colleagues and me have been designing, architecting and building out applications. I'd like to write down, as much for myself as for the reader, how I've been thinking about writing software and which components we've built and borrowed to get our work done.
+      </p>
+      <p>
+        TODO: index
+      </p>
+      <p>
+        For context: I've been building fairly complex user-facing web applications in multiple domains with varying functional and technical environments: Applications for non-tech-savvy users, apps running on slow and legacy hardware, offline-first apps on Android and iOS tablets, complex web forms for administration and management, fairly complex reporting, interfacing with and building our own JSON and XML web API's, ... Most of these applications consist of:
+      </p>
+      <p>
+        <ul>
+          <li>A central database: PostgreSQL, MS SQL Server and SQLite mostly</li>
+          <li>One or more server-side applications accepting HTTP traffic and returning HTML, data in a JSON format, static files, ...</li>
+          <li>One or more UI programs running in some sort of webbrowser</li>
+        </ul>
+      </p>
+      <p>
+        This is probably obvious, but I'm quite happy to work in this environment. It's allowed me to build applications strongely tailored towards users' wishes. No installation and setup burden, no update workload, huge reach. On the technical level, it provides a very solid infrastructure layer and huge possibilities for code, styling and even partial application reuse.
+      </p>
+      <p>
+        With my personal context explained, these are the rules that I live by to make "successful" software:
+      </p>
+
+      <ul>
+        <li>Make it do pretty much exactly what users want</li>
+        <li>Make it work correctly</li>
+        <li>Build it fast</li>
+        <li>Keep it maintainable</li>
+        <li>Have it run fast enough</li>
+      </ul>
+      <p>
+        These are really obvious rules. Who would not want to follow these? Still, I think they're useful to spell out.
+      </p>
+
+      <h1>My main software architecture principle: Changeability</h1>
+      <p>
+        The more I think about it, the more I feel like changeability is the main principle I follow when building applications and libraries. This comes from the realization that it's pretty much impossible to know what you need to build before and while you're building it. So the best way I found is to <b>talk and listen</b> to every kind of user you can find, then think and analyse what you can, then build something, and then <b>furiously change every single thing that you've built completely wrong</b>.
+      </p>
+      <p>
+        When successful, you can make your software do exactly what your users want (eventually) and make it work correctly where it doesn't. Maintainability is basically a synonym of changeability. Any performance problems can similarly be resolved as they start arising. Speed of development is orthogonal to changeability in my opinion, but I'll try to touch upon this later.
+      </p>
+
+      <h1>How I try to achieve great Changeability</h1>
+      <h2>Static typing</h2>
+      <p>
+        The first method of achieving changeability for me lies in strong static checks of the whole codebase. I know in some software design circles this is heavily contested and that's OK with me, but in my experience, there is simply no good replacement for the amount of value a good static typing system provides. The type system I use in most of my projects (TypeScript, see later) never feels like a burden and only feels like a helper. This is in contrast to lesser type systems like Java's, C#'s, Pascal's, ... Even rigorous testing-based alternatives to static typing I've only seen fall short to a good use of a good type system: It takes more time to write these tests and often hampers changeability where static typing only enhances it. Note: There are not absolute judgments: You can absolutely screw up your project while using a good type system, and you can absolutely get a lot of value out of a dynamically typed software project with a well-designed test suite.
+      </p>
+      <p>
+        Strong type safety provides you with the certainty that you've avoided a whole bunch of stupid errors, it guides your API's and design (similarly to how test-driven development is said to guide it) and most importantly allows you to change and refactor your codebase with very high confidence. Many new users of languages like Haskell and OCaml have written about how "when it compiles, it works" has changed their view on software development, and I can only concur. Additionally, I feel TypeScript's type system, when used fully, can grant you the same feeling.
+      </p>
+      <h2>Debuggability</h2>
+      <p>
+        Every time I work in an environment where I don't have access to a good debugger, it makes me miss the good ones so much more. Finding bugs, finding performance issues, (re)familiarizing yourself with codebases, ... all are made so much easier with a good debugger. I love the available Javascript debugging tools provided by Chrome, Firefox, Safari, ... Especially coupled with the flexibility that source maps provide.
+      </p>
+      <h2>Testability</h2>
+      <p>
+        Obviously, testing is one of the best weapons in our arsenal to bulletproof the trickiest parts of our software. Testability vs Static Typing has become somewhat of a religious discussion, but in my experience these two only enhance eachother. The parts of your app that are impossibly or too complex to verify with static typing should be verified with unit tests, generative tests and runtime assertions. The amount of things you should be testing this way is strongly reduced with a good type system, so you can focus your efforts on the parts with a lot of boolean logic, temporal logic, parallelism/concurrency, parsing/serialization, complex business rules, extensive configuration, etc.
+      </p>
+      <h2>Simplicity</h2>
+      <p>
+        This term is extremely vague and overused, but I still like using it. For me, this means having a (relatively) simple mental model of how (parts) of your application work, so you can easily envision where and how new features should be slotted in, or where existing functionality should be changed or even taken out if it does not provide the value it should.
+      </p>
+      <p>
+        Simplicity plus the more general "changeability" are the biggest drivers of how fast you can build and extend your software. The difference between working on a convoluted and complex system and a simple and changeable system are night-and-day. This also causes developer burnout faster than anything else.
+      </p>
+
+      <h1>The technology I use to follow these principles</h1>
+      <h2>TypeScript on client and server</h2>
+      <p>
+        As mentioned before, I love TypeScript's type system. It's not perfect, but considering how mainstream the language has become, it can do so much to improve typesafety of your applications. I especially love the union types. I use them literally everywhere. I use them like <a>Haskell's ADT's</a>, <a>OCaml/Standard ML's variants</a> and even as an alternative to OO inheritance hierarchies sometimes. The recent interest in modelling Haskell's newtypes with <a>type branding</a> is really interesting as well. I wouldn't mind some <a>better support for nominal typing</a> but I'm fine without it.
+      </p>
+      <p>
+        I'm a big Haskell fan, but I've grown weary of using Monad's for everything. I thought I would be unhappy without a way to mark functions as impure, but in practice this has pretty much never been an issue for me, to my own surprise. In 95% of cases, a Promise<T> already signals some sort of impurity.
+      </p>
+      <p>
+        I'm also completely happy without typeclasses. I don't like how this often makes code in Haskell much more difficult to understand and I'm a bigger fan of using simpler things to do the same. OCaml's module system, or simple interfaces, or even something like Codec's for JSON encoding. I don't ever miss them in my daily program and in Haskell I've mostly seen them used for academic discussions rather than actual practical use cases.
+      </p>
+      <p>
+        All of this, coupled with the amazing tooling available, makes TypeScript my favorite language to write web-based software in. More low-level applications I would probably be writing in Rust or Ada depending on project specifics, but those are not things I do very often today. Some tooling I love using for TypeScript:
+        <ul>
+          <li>esbuild: Such a fast bundler and TypeScript compiler, love it!</li>
+          <li>tsserver/lsp: Just a great dev experience in any IDE/Vim/Emacs dev env (I swear by Emacs myself, but it's not for everyone)</li>
+          <li>prettier: Automatic formatting of code saves me SO MUCH TIME. It's one of the things that has really made writing code purely more fun for me</li>
+          <li>eslint: I don't use many rules, but it can uncover some tricky situations, especially coupled with typescript's type information</li>
+        </ul>
+      </p>
+
+      <h2>Functions & Data</h2>
+      <p>
+        In my experience, focussing on (pure) functions and data to construct your program is the best default. I think modelling of your data and defining the API of your functions is extremely important. OO design techniques have their place in certain specific siutations and as a model for software applications interacting with each other. I however disagree with the approach most software developers I've come across in my career take, which is pouring every piece of data and functionality in OO taxonomies as the default. I've only ever seen this lead to worse programs for users and for developers.
+      </p>
+      <p>
+        Mind you, I don't hate OO and I definitely think it has value, but it is SO much harder to get right than plain functions and data... A good example of a system where I do think OO fits fairly well is in game engines like Unity and UE.
+      </p>
+
+      <h2>Embrace SQL</h2>
+      <p>
+        Much of my work revolves around relationally structured data contained in RDMBS's. SQL is the best way to interact with these systems. SQL is a very powerful language and even though it's not perfect, proper use of SQL and your RDBMS can seriously simplify development time. I see many developers, even backend-centric ones, be oblivious to certain aspects of SQL and because of that having to build complex and error prone homebrew mechanisms to compensate.
+      </p>
+      <p>
+        I'm also yet to see a SQL alternative (ActiveRecord, LINQ, various other ORM's/ORM-likes) that provides anything over regular SQL apart from some faster development at the start of a project traded for a huge amount of extra complexity.
+      </p>
+
+      <h2>Specific suite of libraries</h2>
+      <p>
+        <b>
+
+          <div>
+            TODO: overview diagram:
+          </div>
+
+          <div>
+            DB <- Server: Sql-Typechecker
+          </div>
+
+          <div>
+            Server: Router
+          </div>
+
+          <div>
+            Server -> Client: Clientside component instantiation
+          </div>
+
+          <div>
+            Client -> Server: APIspec
+          </div>
+
+          <div>
+            Client: Clientside Router + Reactive + Form <br/>
+            (gettext, js-joda, css modules, esbuild to ES6 modules, Tailwind?)
+          </div>
+
+        </b>
+      </p>
+      <h3>SQL-Typechecker</h3>
+      <p>
+        This is how I embrace SQL, while also bridging the gap between the two "worlds". SQL-Typechecker is a standalone program that reads your SQL table definitions and CREATE FUNCTION statements and generates typed TypeScript functions. It focusses on PostgreSQL. It's similar in spirit to <a>slqc</a> and <a href="">sql-typer</a> but with some important additions:
+        <ul>
+          <li>Like sqlc, it typechecks the full SQL AST. That means it can also find type errors in your SQL code</li>
+          <li>It supports Haskell like newtypes, like sqlc, with the DOMAIN construct</li>
+          <li>It supports json_build_object, json_agg and array_agg (inspired by <a href="">zapatos</a>. This allows for constructing strongly typed nested result sets in a  highly efficient query. SQL-Typechecker also generates (de)serialization code instead of relying on something like PostgreSQL's oid's. Thanks to this feature, JSON fields are also correctly deserialized. <b>TODO example</b></li>
+          <li>It emits simple typescript code for every CREATE FUNCTION</li>
+          <li>It emits CRUD functions for every table. Inspired by most ORM's. I find it mostly useful for INSERT and UPDATE queries, as I don't often make very complicated INSERT and UPDATE queries myself. Nullable fields and fields with defaults are also supported nicely so for these Sql-Typechecker generates nullable fields. <b>TODO example</b></li>
+          <li>It only uses valid SQL, thanks to focussing on the CREATE FUNCTION syntax.</li>
+        </ul>
+      </p>
+
+      <h3>Serverside router & APISpec</h3>
+      <p>
+        I'm not a fan of NodeJS serverside frameworks like Express or Koa. The Nodejs HTTP server API is already quite nice (and very easily debuggable!) so I wanted to stay as close to this as possible: Request comes in, response goes out. I've designed a small data format for specifying an API endpoint (URL, URL params, HTTP method, body format, return type) and a router that can implement and run these specifications. The URL parser library (mkRoute) contains some interesting TypeScript type level magic to parse URL's and extract its parameters. To bridge the gap between client and server, these APISpec's can also be used clientside to do the actual calls and add type safety to those as well. <b>TODO example</b>
+      </p>
+      <p>
+        When you're generating HTML, you can also generate references to clientside components that need to be rendered by the browser and include any data in a typesafe way, which will be serialized into the HTML body. This way, we can bridge the divide between client and server "from the other side".
+      </p>
+
+      <h3>Clientside router</h3>
+      <p>
+        The same mkRoute function and a stripped down implementation of the serverside route is used on the clientside, to safely link to other pages.
+      </p>
+
+      <h3>Clientside rendering</h3>
+      <p>
+        I've built a small (but complete) clientside framework built around two concepts:
+      </p>
+      <p>
+        <ul>
+          <li>1. A "Source" constructor that wraps some piece of data with a getter and setter and an observe() function that notifies you when the data changes.</li>
+          <li>2. A dyn<T>(s: Source<T>, render: (t: T) => HTMLElement[]) function that renders HTML and rerenders it when the source changes. All synchroneous, no dirty checking, no reconciliation. The implementation is maybe 50 LOC.</li>
+        </ul>
+      </p>
+      <p>
+        <b>TODO example</b>
+      </p>
+      <p>
+        You might think this can't be enough to make complex clientside apps, but it absolutely is! I stole the idea from <a href="">Ur/Web</a>, a web framework and language that has been hugely influential on me.
+      </p>
+
+      <p>
+        I've recently built a <b>very interesting form library</b> to go along with this. It lets you define a full form from smaller parts. It supports building lists of subforms, tuple/records of subforms (similar to product types), conditional subforms (similar to sum types). It also allows async loading of form elements and validation & parsing of native DOM elements. That's quite a mouthful :P. <b>TODO example</b>
+      </p>
+
+      <h3>Some more things</h3>
+      <p>
+        <ul>
+          <li>Esbuild: This has been a game changer for me. The speed and simplicity of this tool is exactly what I've always wanted!</li>
+          <li>Js-joda for dates & times. I tend to deal with a lot of dates and times, and js-joda is hands down the best library for the JS ecosystem. JAVA got this 100%, the datamodel of Joda is perfect. Please don't use moment.js, native JS Date objects are almost never what you want/need.</li>
+          <li>Using gettext for translations. The maturity of the gettext ecosystem is a really nice. No need to reinvent the wheel for this. I've managed to get an esbuild system up and running that also inlines the translations into the build, so you don't have to ship all translations to the client.</li>
+          <li>I'm currently evaluating <a href="">typed css modules</a> to help with CSS autocompletion and refactoring. I like it, but it's fairly complicated to set up, so I'm not sure if I would advise this as a default</li>
+          <li>I've also been trying out <a href="">Tailwind CSS</a>. I'm on the fence about it. I don't like writing my own CSS (and doing so takes a LONG time to get somewhere good), but I'm also not 100% happy with Tailwind, so I don't have any strong opinions on this yet. </li>
+        </ul>
+      </p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+
+
+
+
