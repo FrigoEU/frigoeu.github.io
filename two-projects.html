@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <title>Two projects!</title>
+    <link rel="stylesheet" href="css/pure-min.css">
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+      <link rel="stylesheet" href="css/grids-responsive-min.css">
+    <!--<![endif]-->
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="css/layouts/blog-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+      <link rel="stylesheet" href="css/layouts/blog.css">
+    <!--<![endif]-->
+
+</head>
+<body>
+<div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+        <div class="header">
+            <h1 class="brand-title">Simon Van Casteren</h1>
+            <h2 class="brand-tagline">Blogposts</h2>
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a class="pure-button" href="index.html">Posts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="pure-button" href="talks.html">Talks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="pure-button" href="about.html">About</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+    <h1 class="content-subhead">2025-05-16</h1>
+    <h1> I've released my two personal projects!</h1>
+    <div class="actual-text">
+      <p>
+        I've finally open-sourced and documented the two projects I've been building and using in my many TypeScript projects for the last five or so years. The first one is <a href="https://github.com/FrigoEU/trader.ts">Trader.ts</a>, a UI library with minimal complexity and a much simpler mental model than React, Angular, Vue, etc. The second one is <a href="https://github.com/FrigoEU/sql-typechecker">SQL-Typechecker</a>, a PostgreSQL typechecker and TypeScript type generator.
+      </p>
+
+      <h2>Trader.ts</h2>
+      <p>
+        The full documentation can be found <a href="https://github.com/FrigoEU/trader.ts">here</a>, but in short it's the server and UI library I've been using to build <a href="https://www.classy.school">classy.school</a> and other commercial projects for quite some time now. It's very, VERY simple. It does no reconciliation, no dirty checking, none of that magic. It's heavily inspired by the frontend library of <a href="http://www.impredicative.com/ur/">Ur/Web</a>. As I was writing the docs, I felt almost embarrassed of how simple and archaic it looks on the surface, but I am extremely confident in its quality. The abstractions I've been able to build on top of it (most importantly my Form library, docs incoming) are impossible to do in a sane way in many of the heavy mainstream frameworks. Couldn't be happier!
+      </p>
+
+      <h2>SQL-Typechecker</h2>
+      <p>
+        The existing TypeScript libraries to interact with PostgreSQL in TypeScript were not good enough. Libraries that come close to what I wanted (but are both not good enough and for other programming languages) are <a href="https://sqlc.dev/">sqlc (Go)</a> and <a href="https://github.com/launchbadge/sqlx">sqlx (Rust)</a>. 
+      </p>
+      <p>
+        So I wrote my own: <a href="https://github.com/FrigoEU/sql-typechecker">SQL-Typechecker</a>. It's a PostgreSQL parser, typechecker and type generator for TypeScript using PostgreSQL's native support for function definition (CREATE FUNCTION ...). In short, it reads your SQL DDL declarations (CREATE TABLE ...) and SQL function definitions (CREATE FUNCTION ...), runs typechecking and generates TypeScript files to run these functions on your database. It's unique features include:
+      </p>
+      <ul>
+        <li>Support for CREATE DOMAIN statements, resulting in branded types. This feature singlehandedly caught more than 20 bugs in my projects in the last year</li>
+        <li>Support for ARRAY_AGG and JSONB_BUILD_OBJECT, allowing you to extract nested relations in a single query <a href="https://github.com/FrigoEU/sql-typechecker?tab=readme-ov-file#extended-example">(see the extended example here)</a></li>
+        <li>No special syntax like :variablename, just native PostgreSQL syntax</li>
+        <li>Typechecking of SQL code</li>
+        <li>Better type definitions, especially regarding nullability, than all libraries that rely on PostgreSQL's DESCRIBE feature</li>
+        <li>Custom serialization and deserialization based on type inference, even inside nested structures</li>
+      </ul>
+
+      <p>Even though not everything that PostgreSQL supports is supported in SQL-Typechecker, I've been able to extend it with every feature, function or piece of syntax that I've needed in my projects over the years.</p>
+
+      <h2>Why should you care?</h2>
+      <p>If you're happy with TypeScript and JavaScript's current state of libraries, then you probably don't care and that's fine by me. But for me, the TypeScript ecosystem really missed both of these libraries, which are focused on providing <b>full stack type safety</b>, from Database to Browser. I'm a huge TypeScript fan but was jealous of the full stack typechecking of projects like <a href="http://www.impredicative.com/ur/">Ur/Web</a> or <a href="https://ocsigen.org">Ocaml's Ocsigen</a>, so I set out to build the same experience in TypeScript.</p>
+
+      <h2>Why Typescript if you like Ur/Web, Haskell, and Ocaml so much?</h2>
+      <p>Fair point. It's not for lack of trying! But TypeScript offers a bunch of advantages:</p>
+
+      <ul>
+        <li>TypeScript's <b>tooling</b> is just so much better than any of the above. The typechecker is fast, the editor support is best in class, npm (I use it with nix) is so easy to use (hello Cabal, Dune, etc.). </li>
+        <li><b>Debugger</b>. Chrome Dev Tools is an incredibly good debugger and works for both Node.js and browser code. The absence of a good debugger in the above languages is basically gamebreaking for me.</li>
+        <li>TypeScript's <b>type system</b> is incredibly strong and easy to use. It comes with some caveats due to its unsoundness and inherits some bad stuff from JavaScript, but <b>eslint</b> catches most of them for me.</li>
+        <li>Close to JavaScript: Like it or not, your code will get compiled to JavaScript if you want to write code for the browser. Closer = easier to debug, think about performance, and more.</li>
+        <li>Not purely functional. This one is probably personal, but for code clarity I still often resort to using statements, loops and mutability on select places in my code. 98% of my code is purely functional (minus monads and effects) and immutable, but that 2% is often gnarly to write in a purely expression-oriented language.</li>
+      </ul>
+
+      <p>I could honestly go on for hours about this topic, but I'll keep it brief. Get in touch if you want to know more about my software building philosophy!</p>
+
+      <h2>What now?</h2>
+      <p>Not sure. I've completed my current project and have been focusing the last few weeks on <a href="https://www.classy.school">classy.school</a>. The sales part of the business is new to me but exciting. I'll probably still look for another project in the near future, but only time will tell! I've had the honor to lead two very interesting projects in the last few years, so if I can find a project where I get the stakeholder's confidence and believe in the project, I might jump!</p>
+
+      <p>Please check out my new open-sources libraries if you're interested and send me some feedback!</p>
+
+      <p>Simon</p>
+    </div>
+
+    </div>
+</div>
+</body>
+</html>
